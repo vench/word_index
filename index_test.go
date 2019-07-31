@@ -7,10 +7,16 @@ import (
 var (
 	documents = []string{
 		`Sorry. We’re having trouble getting your pages back.`,
+		`Наши рестораны это необычный формат: открытая кухня, блюда со всего света, фермерские продукты, уют и дружеская атмосфера.`,
 		`If that address is correct, here are three other things you can try: Try again later.    Check your network connection.    If you are connected but behind a firewall, check that Firefox has permission to access the Web.`,
 		`Still not able to restore your session? Sometimes a tab is causing the issue. View previous tabs, remove the checkmark from the tabs you don’t need to recover, and then restore.`,
 		`We are having trouble restoring your last browsing session. Select Restore Session to try again.`,
+		`Docker supports multi-stage builds, meaning docker will build in one container and you can copy the build artifacts to final image.`,
 		`Нет подключения к Интернету`,
+		`Our Dockerfile will have two section, first one where we build the binary and the second one which will be our final image. `,
+		`Удачное расположение с панорамой Казанского собора, вежливый и приветливый персонал, очень вкусная еда, быстрое обслуживание создали хорошее настроение и комфорт. `,
+		`Ресторан быстрого обслуживания Marketplace (бывшие «Фрикадельки») — это новая, современная интерпретация демократичного ресторана с открытой кухней, линией раздачи «Free flow» и отделом кулинарии.`,
+		`Marketplace – это демократичный ресторан с открытой кухней и живой атмосферой европейского рынка.`,
 		`Георгию Карамзину и Татьяне Самсоновой предъявлено обвинение как посредникам. Изначально и Гоголев, и Карамзин были арестованы, но накануне Якутский городской суд перевел последнего под домашний арест. Самсонова же под домашним арестом изначально.`,
 		`Гоголев — главный обвиняемый по этому делу. По данным следствия, девелопер передал ему взятку в виде прав на недвижимость в строящемся жилом доме на 1491 квадратный метр.`,
 		`Попробуйте сделать следующее: Проверьте сетевые кабели, модем и маршрутизатор. Подключитесь к сети Wi-Fi ещё раз.`,

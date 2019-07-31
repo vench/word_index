@@ -53,6 +53,10 @@ type indexCharsItem struct {
 //
 func (i *indexCharsItem) Find(query string) bool {
 
+	if len(query) == 0 {
+		return false
+	}
+
 	variants := make([]string, 0)
 	if query[len(query)-1] == ')' {
 		base := make([]rune, 0)
@@ -120,6 +124,14 @@ func (i*indexChars) Add(str ... string ) {
 			}
 			return false
 		})
+		k := 0
+		for k < len(words) {
+			if len(words[k]) == 0 {
+				words = append(words[:k], words[k+1:]...)
+			} else {
+				k ++
+			}
+		}
 		n := &indexCharsItem{words:words}
 		i.data = append(i.data, n)
 	}
