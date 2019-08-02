@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 )
 
 const (
@@ -202,6 +203,37 @@ func (i *indexBin) DocumentAt(index int) (string, bool) {
 func NewIndexBin() Index {
 	return &indexBin{data: []*indexBinItem{}}
 }
+
+
+//
+type indexBinSync struct {
+	indexBin
+	mx sync.RWMutex
+}
+
+func (i *indexBinSync) Add(str ...string) {
+	i.mx.Lock()
+	defer i.mx.Unlock()
+	i.indexBin.Add(str...)
+}
+
+func (i*indexBinSync) Find(str string) int {
+	i.mx.RLock()
+	defer i.mx.RUnlock()
+	return i.indexBin.Find(str)
+}
+
+func (i*indexBinSync) DocumentAt(index int) (string, bool) {
+	i.mx.RLock()
+	defer i.mx.RUnlock()
+	return i.indexBin.DocumentAt(index)
+}
+
+//
+func NewIndexBinSync() Index {
+	return &indexBinSync{indexBin:indexBin{data: []*indexBinItem{}}}
+}
+
 
 //
 type indexInterpolationItem struct {

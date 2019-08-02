@@ -58,6 +58,12 @@ func BenchmarkIndexInterpolation(t *testing.B) {
 }
 
 //
+func BenchmarkIndexBinSync(t *testing.B) {
+	bi := NewIndexBinSync()
+	bPlainText(t, bi)
+}
+
+//
 func bPlainText(t *testing.B, i Index) {
 	i.Add(documents...)
 
@@ -73,6 +79,13 @@ func bPlainText(t *testing.B, i Index) {
 //
 func TestIndexRegexp(t *testing.T) {
 	bi := NewIndexRegexp()
+	tIndexPlainText(t, bi)
+	tIndexMathText(t, bi)
+}
+
+//
+func TestIndexBinSync(t *testing.T) {
+	bi := NewIndexBinSync()
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
 }
