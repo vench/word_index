@@ -18,7 +18,7 @@ var (
 		`В математическом анализе и информатике кривая Мортона, Z-последовательность,Z-порядок, кривая Лебега, порядок Мортона или код Мортона — это функция, которая отображает многомерные данные в одномерные, сохраняя локальность точек данных. Функция была введена в 1966 Гаем Макдональдом Мортоном[1].`,
 		`Our Dockerfile will have two section, first one where we build the binary and the second one which will be our final image. `,
 		`Мы рассмотрим вашу заявку и ответим вам в ближайшее время. Если заявка будет подтверждена, доступ к сервису появится автоматически.`,
-		`If you want to keep your array ordered, you have to shift all of the elements at the right of the deleting index by one to the left. Hopefully, this can be done easily in Golang:`,
+		`If you want to keep your array ordered, you have to shift all of the elements at the right of the deleting indexRegexp by one to the left. Hopefully, this can be done easily in Golang:`,
 		`Данный шаг доступен для пользователей, у которых есть права на какой-либо счетчик Метрики. Если у вас нет прав на счетчик, то откройте готовый дашборд Metriсa и перейдите к шагу 2.`,
 		`Удачное расположение с панорамой Казанского собора, вежливый и приветливый персонал, очень вкусная еда, быстрое обслуживание создали хорошее настроение и комфорт. `,
 		`Ресторан быстрого обслуживания Marketplace (бывшие «Фрикадельки») — это новая, современная интерпретация демократичного ресторана с открытой кухней, линией раздачи «Free flow» и отделом кулинарии.`,
@@ -40,14 +40,20 @@ var (
 )
 
 //
-func BenchmarkBaseIndex(t *testing.B) {
-	bi := NewBaseIndex()
+func BenchmarkIndexRegexp(t *testing.B) {
+	bi := NewIndexRegexp()
 	bPlainText(t, bi)
 }
 
 //
-func BenchmarkCharsIndex(t *testing.B) {
+func BenchmarkIndexBin(t *testing.B) {
 	ic := NewIndexBin()
+	bPlainText(t, ic)
+}
+
+//
+func BenchmarkIndexInterpolation(t *testing.B) {
+	ic := NewIndexInterpolation()
 	bPlainText(t, ic)
 }
 
@@ -65,17 +71,63 @@ func bPlainText(t *testing.B, i Index) {
 }
 
 //
-func TestBaseIndex(t *testing.T) {
-	bi := NewBaseIndex()
+func TestIndexRegexp(t *testing.T) {
+	bi := NewIndexRegexp()
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
 }
 
 //
-func TestBinIndex(t *testing.T) {
+func TestIndexBin(t *testing.T) {
 	bi := NewIndexBin()
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
+}
+
+//
+func TestIndexBinAtDocument(t *testing.T) {
+	bi := NewIndexBin()
+	tAtDocument(t, bi)
+}
+
+//
+func TestIndexInterpolationAtDocument(t *testing.T) {
+	bi := NewIndexInterpolation()
+	tAtDocument(t, bi)
+}
+
+//
+func TestIndexRegexpAtDocument(t *testing.T) {
+	bi := NewIndexRegexp()
+	tAtDocument(t, bi)
+}
+
+//
+func TestIndexInterpolation(t *testing.T) {
+	bi := NewIndexInterpolation()
+	tIndexPlainText(t, bi)
+	tIndexMathText(t, bi)
+}
+
+//
+func tAtDocument(t *testing.T, bi Index) {
+	ss := []string{`first str`, ``, `third str`}
+	bi.Add(ss...)
+
+	for i, s := range ss {
+		str, ok := bi.DocumentAt(i)
+		if !ok {
+			t.Fatalf(`Index %d not extists`, i)
+		}
+		if str != s {
+			t.Fatalf(`String not equals: %s %s`, str, s)
+		}
+	}
+
+	_, ok := bi.DocumentAt(len(ss) + 1)
+	if ok {
+		t.Fatalf(`Index %d out of range`, len(ss)+1)
+	}
 }
 
 //
