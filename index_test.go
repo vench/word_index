@@ -40,26 +40,20 @@ var (
 )
 
 //
-func BenchmarkIndexRegexp(t *testing.B) {
-	bi := NewIndexRegexp()
-	bPlainText(t, bi)
-}
-
-//
 func BenchmarkIndexBin(t *testing.B) {
-	ic := NewIndexBin()
+	ic := NewIndex()
 	bPlainText(t, ic)
 }
 
 //
 func BenchmarkIndexInterpolation(t *testing.B) {
-	ic := NewIndexInterpolation()
+	ic := &indexWord{data: []*indexItem{}, binSearch: false}
 	bPlainText(t, ic)
 }
 
 //
 func BenchmarkIndexBinSync(t *testing.B) {
-	bi := NewIndexBinSync()
+	bi := NewIndexSync()
 	bPlainText(t, bi)
 }
 
@@ -77,47 +71,40 @@ func bPlainText(t *testing.B, i Index) {
 }
 
 //
-func TestIndexRegexp(t *testing.T) {
-	bi := NewIndexRegexp()
+func TestIndexBinSync(t *testing.T) {
+	bi := NewIndexSync()
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
 }
 
 //
-func TestIndexBinSync(t *testing.T) {
-	bi := NewIndexBinSync()
-	tIndexPlainText(t, bi)
-	tIndexMathText(t, bi)
+func TestIndexBinSyncAtDocument(t *testing.T) {
+	bi := NewIndexSync()
+	tAtDocument(t, bi)
 }
 
 //
 func TestIndexBin(t *testing.T) {
-	bi := NewIndexBin()
+	bi := NewIndex()
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
 }
 
 //
 func TestIndexBinAtDocument(t *testing.T) {
-	bi := NewIndexBin()
+	bi := NewIndex()
 	tAtDocument(t, bi)
 }
 
 //
 func TestIndexInterpolationAtDocument(t *testing.T) {
-	bi := NewIndexInterpolation()
-	tAtDocument(t, bi)
-}
-
-//
-func TestIndexRegexpAtDocument(t *testing.T) {
-	bi := NewIndexRegexp()
+	bi := &indexWord{data: []*indexItem{}, binSearch: false}
 	tAtDocument(t, bi)
 }
 
 //
 func TestIndexInterpolation(t *testing.T) {
-	bi := NewIndexInterpolation()
+	bi := &indexWord{data: []*indexItem{}, binSearch: false}
 	tIndexPlainText(t, bi)
 	tIndexMathText(t, bi)
 }
