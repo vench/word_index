@@ -121,10 +121,11 @@ func (i *indexItem) findBin(query string, variants []string) bool {
 		if i.words[low] == query {
 			return true
 		} else if query[len(query)-1:] == tagAny {
-			for n, r := range []rune(query) {
+			for n := 0; n < len(query); n ++ {
+				r := query[n]
 				if r == tagAnyRune {
 					return true
-				} else if len(i.words[low]) <= n || rune(i.words[low][n]) != r {
+				} else if len(i.words[low]) <= n || i.words[low][n] != r {
 					break
 				}
 			}
