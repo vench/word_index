@@ -201,8 +201,8 @@ func (i *indexWord) Add(str ...string) {
 			return false
 		})
 
-		n := &indexItem{words: words, document: s}
-		i.data = append(i.data, n)
+		n := indexItem{words: words, document: s}
+		i.data = append(i.data, &n)
 	}
 }
 
@@ -260,7 +260,7 @@ func (i *indexWord) FindAt(index int, str string) bool {
 
 //
 func NewIndex() Index {
-	return &indexWord{data: []*indexItem{}, binSearch: true}
+	return &indexWord{data: make([]*indexItem, 0), binSearch: true}
 }
 
 //
@@ -271,8 +271,8 @@ type indexWordSync struct {
 
 func (i *indexWordSync) Add(str ...string) {
 	i.mx.Lock()
-	defer i.mx.Unlock()
 	i.indexWord.Add(str...)
+	i.mx.Unlock()
 }
 
 func (i *indexWordSync) Find(str string) int {
@@ -295,5 +295,5 @@ func (i *indexWordSync) FindAt(index int, str string) bool {
 
 //
 func NewIndexSync() Index {
-	return &indexWordSync{indexWord: indexWord{data: []*indexItem{}, binSearch: true}}
+	return &indexWordSync{indexWord: indexWord{data: make([]*indexItem, 0), binSearch: true}}
 }

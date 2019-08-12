@@ -74,6 +74,8 @@ func bPlainText(t *testing.B, i Index) {
 func TestIndexBinSync(t *testing.T) {
 	bi := NewIndexSync()
 	tIndexPlainText(t, bi)
+
+	bi = NewIndexSync()
 	tIndexMathText(t, bi)
 }
 
@@ -87,6 +89,8 @@ func TestIndexBinSyncAtDocument(t *testing.T) {
 func TestIndexBin(t *testing.T) {
 	bi := NewIndex()
 	tIndexPlainText(t, bi)
+
+	bi = NewIndex()
 	tIndexMathText(t, bi)
 }
 
@@ -106,6 +110,8 @@ func TestIndexInterpolationAtDocument(t *testing.T) {
 func TestIndexInterpolation(t *testing.T) {
 	bi := &indexWord{data: []*indexItem{}, binSearch: false}
 	tIndexPlainText(t, bi)
+
+	bi = &indexWord{data: []*indexItem{}, binSearch: false}
 	tIndexMathText(t, bi)
 }
 
@@ -132,10 +138,13 @@ func tAtDocument(t *testing.T, bi Index) {
 
 //
 func tIndexMathText(t *testing.T, i Index) {
+	var (
+		s1 = `Нет подключения к Интернету`
+		s2 = `Иванова нет на месте`
+		s3 = `Create container from the image and expose it by mentioning a port`
+	)
 	i.Add(
-		`Нет подключения к Интернету`,
-		`Иванова нет на месте`,
-		`Create container from the image and expose it by mentioning a port`,
+		s1, s2, s3,
 	)
 	tFindNegative(t, i, `и`)
 	tFindNegative(t, i, `Интернет`)
@@ -146,7 +155,38 @@ func tIndexMathText(t *testing.T, i Index) {
 	tFindPositive(t, i, `contai*`)
 	tFindPositive(t, i, `contai(xxx|*)`)
 	tFindPositive(t, i, `c*`)
+	tFindNegative(t, i, `mentionin`)
 	tFindPositive(t, i, `mentioning*`)
+	tFindPositive(t, i, `m*`)
+
+	d, ok := i.DocumentAt(0)
+	if !ok {
+		t.Fatalf(`Document not found`)
+	}
+	if d != s1 {
+		t.Fatalf(`Error check: %s != %s`, d, s1)
+	}
+	d, ok = i.DocumentAt(1)
+	if !ok {
+		t.Fatalf(`Document not found`)
+	}
+	if d != s2 {
+		t.Fatalf(`Error check: %s != %s`, d, s2)
+	}
+	d, ok = i.DocumentAt(2)
+	if !ok {
+		t.Fatalf(`Document not found`)
+	}
+	if d != s3 {
+		t.Fatalf(`Error check: %s != %s`, d, s3)
+	}
+
+	if i.FindAt(1, `ment*`) == true {
+		t.Fatalf(`Error check`)
+	}
+	if i.FindAt(2, `ment*`) == false {
+		t.Fatalf(`Error check`)
+	}
 }
 
 //
