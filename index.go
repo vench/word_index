@@ -55,7 +55,7 @@ func (i *indexItem) findInterpolation(query string, variants []string) bool {
 			if i.words[n] == query {
 				return true
 			} else if query[len(query)-1:] == tagAny {
-				for j, r := range []rune(query[len(query)-1:]) {
+				for j, r := range []rune(query) {
 					if r == tagAnyRune {
 						return true
 					} else if len(i.words[low]) <= n || rune(i.words[low][j]) != r {
@@ -77,7 +77,7 @@ func (i *indexItem) findInterpolation(query string, variants []string) bool {
 			if i.words[n] == query {
 				return true
 			} else if query[len(query)-1:] == tagAny {
-				for j, r := range []rune(query[len(query)-1:]) {
+				for j, r := range []rune(query) {
 					if r == tagAnyRune {
 						return true
 					} else if len(i.words[low]) <= n || rune(i.words[low][j]) != r {
@@ -120,7 +120,7 @@ func (i *indexItem) findBin(query string, variants []string) bool {
 		if i.words[low] == query {
 			return true
 		} else if query[len(query)-1:] == tagAny {
-			for n, r := range []rune(query[len(query)-1:]) {
+			for n, r := range []rune(query) {
 				if r == tagAnyRune {
 					return true
 				} else if len(i.words[low]) <= n || rune(i.words[low][n]) != r {

@@ -187,6 +187,9 @@ func tIndexMathText(t *testing.T, i Index) {
 	if i.FindAt(2, `ment*`) == false {
 		t.Fatalf(`Error check`)
 	}
+	if i.FindAt(2, `mentz*`) == true {
+		t.Fatalf(`Error check`)
+	}
 }
 
 //
