@@ -7,16 +7,16 @@ import (
 )
 
 const (
-	tagAny          = `*`
-	tagAnyRune      = '*'
-	emptyFind       = -1
+	tagAny     = `*`
+	tagAnyRune = '*'
+	emptyFind  = -1
 )
 
 //
 type Index interface {
 	Find(string) int
 	FindOff(string, int) int
-	FindAll(string)[]int
+	FindAll(string) []int
 	FindAt(int, string) bool
 	Add(...string)
 	DocumentAt(int) (string, bool)
@@ -57,7 +57,7 @@ func (i *indexItem) findInterpolation(query string, variants []string) bool {
 			if i.words[n] == query {
 				return true
 			} else if query[len(query)-1:] == tagAny {
-				for n := 0; n < len(query); n ++ {
+				for n := 0; n < len(query); n++ {
 					r := query[n]
 					if r == tagAnyRune {
 						return true
@@ -123,7 +123,7 @@ func (i *indexItem) findBin(query string, variants []string) bool {
 		if i.words[low] == query {
 			return true
 		} else if query[len(query)-1:] == tagAny {
-			for n := 0; n < len(query); n ++ {
+			for n := 0; n < len(query); n++ {
 				r := query[n]
 				if r == tagAnyRune {
 					return true
@@ -149,7 +149,7 @@ type indexWord struct {
 	binSearch bool
 }
 
-func (i*indexWord) FindAll(str string)[]int  {
+func (i *indexWord) FindAll(str string) []int {
 	result := make([]int, 0)
 	var offset = 0
 	for true {
@@ -158,7 +158,7 @@ func (i*indexWord) FindAll(str string)[]int  {
 			break
 		}
 		result = append(result, i)
-		offset = i
+		offset = i + 1
 	}
 	return result
 }
@@ -168,7 +168,7 @@ func (i *indexWord) FindOff(str string, offset int) int {
 	for _, word := range words {
 
 		query, variants := i.makeVariants(word)
-		for index := offset; index < len(i.data); index ++ {
+		for index := offset; index < len(i.data); index++ {
 			d := i.data[index]
 			if i.binSearch {
 				if ok := d.findBin(query, variants); ok {
@@ -322,7 +322,7 @@ func (i *indexWordSync) FindAt(index int, str string) bool {
 	return i.indexWord.FindAt(index, str)
 }
 
-func (i *indexWordSync) FindAll(str string)[]int {
+func (i *indexWordSync) FindAll(str string) []int {
 	i.mx.RLock()
 	defer i.mx.RUnlock()
 	return i.indexWord.FindAll(str)
