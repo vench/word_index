@@ -15,6 +15,8 @@ const (
 //
 type Index interface {
 	Find(string) int
+	FindOff(string, int) int
+	FindAll(string)[]int
 	FindAt(int, string) bool
 	Add(...string)
 	DocumentAt(int) (string, bool)
@@ -147,6 +149,42 @@ type indexWord struct {
 	binSearch bool
 }
 
+func (i*indexWord) FindAll(str string)[]int  {
+	result := make([]int, 0)
+	var offset = 0
+	for true {
+		i := i.FindOff(str, offset)
+		if i == emptyFind {
+			break
+		}
+		result = append(result, i)
+		offset = i
+	}
+	return result
+}
+
+func (i *indexWord) FindOff(str string, offset int) int {
+	words := strings.Split(strings.ToLower(str), ` `)
+	for _, word := range words {
+
+		query, variants := i.makeVariants(word)
+		for index := offset; index < len(i.data); index ++ {
+			d := i.data[index]
+			if i.binSearch {
+				if ok := d.findBin(query, variants); ok {
+					return index
+				}
+			} else {
+				if ok := d.findInterpolation(query, variants); ok {
+					return index
+				}
+			}
+
+		}
+	}
+	return emptyFind
+}
+
 //
 func (i *indexWord) makeVariants(q string) (string, []string) {
 	variants := make([]string, 0)
@@ -210,24 +248,7 @@ func (i *indexWord) Add(str ...string) {
 
 //
 func (i *indexWord) Find(str string) int {
-	words := strings.Split(strings.ToLower(str), ` `)
-	for _, word := range words {
-
-		query, variants := i.makeVariants(word)
-		for index, d := range i.data {
-			if i.binSearch {
-				if ok := d.findBin(query, variants); ok {
-					return index
-				}
-			} else {
-				if ok := d.findInterpolation(query, variants); ok {
-					return index
-				}
-			}
-
-		}
-	}
-	return emptyFind
+	return i.FindOff(str, 0)
 }
 
 //
@@ -283,6 +304,12 @@ func (i *indexWordSync) Find(str string) int {
 	return i.indexWord.Find(str)
 }
 
+func (i *indexWordSync) FindOff(str string, offset int) int {
+	i.mx.RLock()
+	defer i.mx.RUnlock()
+	return i.indexWord.FindOff(str, offset)
+}
+
 func (i *indexWordSync) DocumentAt(index int) (string, bool) {
 	i.mx.RLock()
 	defer i.mx.RUnlock()
@@ -293,6 +320,12 @@ func (i *indexWordSync) FindAt(index int, str string) bool {
 	i.mx.RLock()
 	defer i.mx.RUnlock()
 	return i.indexWord.FindAt(index, str)
+}
+
+func (i *indexWordSync) FindAll(str string)[]int {
+	i.mx.RLock()
+	defer i.mx.RUnlock()
+	return i.indexWord.FindAll(str)
 }
 
 //
