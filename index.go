@@ -189,7 +189,7 @@ func (i *indexWord) FindOff(str string, offset int) int {
 func (i *indexWord) makeVariants(q string) (string, []string) {
 	variants := make([]string, 0)
 
-	if q[len(q)-1] == ')' {
+	if len(q) > 0 && q[len(q)-1] == ')' {
 		base := make([]rune, 0)
 		start := false
 		variant := make([]rune, 0)
