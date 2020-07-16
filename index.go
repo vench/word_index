@@ -157,11 +157,11 @@ type indexWord struct {
 
 func (i *indexWord) FindAll(str string) []int {
 	words := strings.Split(strings.ToLower(str), ` `)
-	variants := make([]variant, len(words))
+	variants := make([]*variant, len(words))
 	for n, word := range words {
 		q, v := i.makeVariants(word)
-		variants[n].query = q
-		variants[n].variants = v
+		vr := &variant{query: q, variants: v}
+		variants[n] = vr
 	}
 
 	result := make([]int, 0)
@@ -179,16 +179,16 @@ func (i *indexWord) FindAll(str string) []int {
 
 func (i *indexWord) FindOff(str string, offset int) int {
 	words := strings.Split(strings.ToLower(str), ` `)
-	variants := make([]variant, len(words))
+	variants := make([]*variant, len(words))
 	for n, word := range words {
 		q, v := i.makeVariants(word)
-		variants[n].query = q
-		variants[n].variants = v
+		vr := &variant{query: q, variants: v}
+		variants[n] = vr
 	}
 	return i.findOff(variants, offset)
 }
 
-func (i *indexWord) findOff(variants []variant, offset int) int {
+func (i *indexWord) findOff(variants []*variant, offset int) int {
 
 
 	for index := offset; index < len(i.data); index++ {
