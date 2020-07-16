@@ -23,6 +23,12 @@ type Index interface {
 }
 
 //
+type variant struct {
+	query    string
+	variants []string
+}
+
+//
 type indexItem struct {
 	words    []string
 	document string
@@ -150,10 +156,18 @@ type indexWord struct {
 }
 
 func (i *indexWord) FindAll(str string) []int {
+	words := strings.Split(strings.ToLower(str), ` `)
+	variants := make([]variant, len(words))
+	for n, word := range words {
+		q, v := i.makeVariants(word)
+		variants[n].query = q
+		variants[n].variants = v
+	}
+
 	result := make([]int, 0)
 	var offset = 0
 	for true {
-		i := i.FindOff(str, offset)
+		i := i.findOff(variants, offset)
 		if i == emptyFind {
 			break
 		}
@@ -165,17 +179,17 @@ func (i *indexWord) FindAll(str string) []int {
 
 func (i *indexWord) FindOff(str string, offset int) int {
 	words := strings.Split(strings.ToLower(str), ` `)
-
-	type variant struct {
-		query    string
-		variants []string
-	}
 	variants := make([]variant, len(words))
 	for n, word := range words {
 		q, v := i.makeVariants(word)
 		variants[n].query = q
 		variants[n].variants = v
 	}
+	return i.findOff(variants, offset)
+}
+
+func (i *indexWord) findOff(variants []variant, offset int) int {
+
 
 	for index := offset; index < len(i.data); index++ {
 		d := i.data[index]
