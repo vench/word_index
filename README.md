@@ -20,3 +20,7 @@ if i != -1 {
     println(documents[i])
 }
 ```
+
+### TODO
+
+[ ] bin operations
