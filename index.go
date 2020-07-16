@@ -165,23 +165,34 @@ func (i *indexWord) FindAll(str string) []int {
 
 func (i *indexWord) FindOff(str string, offset int) int {
 	words := strings.Split(strings.ToLower(str), ` `)
-	for _, word := range words {
 
-		query, variants := i.makeVariants(word)
-		for index := offset; index < len(i.data); index++ {
-			d := i.data[index]
+	type variant struct {
+		query    string
+		variants []string
+	}
+	variants := make([]variant, len(words))
+	for n, word := range words {
+		q, v := i.makeVariants(word)
+		variants[n].query = q
+		variants[n].variants = v
+	}
+
+	for index := offset; index < len(i.data); index++ {
+		d := i.data[index]
+
+		for _, v := range variants {
 			if i.binSearch {
-				if ok := d.findBin(query, variants); ok {
+				if ok := d.findBin(v.query, v.variants); ok {
 					return index
 				}
 			} else {
-				if ok := d.findInterpolation(query, variants); ok {
+				if ok := d.findInterpolation(v.query, v.variants); ok {
 					return index
 				}
 			}
-
 		}
 	}
+
 	return emptyFind
 }
 
