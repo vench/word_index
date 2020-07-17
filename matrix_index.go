@@ -1,8 +1,8 @@
 package word_index
 
 import (
-	"sort"
-	"strings"
+"sort"
+"strings"
 )
 
 type MatrixIndex struct {
@@ -34,10 +34,15 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 			item.index[j] = inx
 			j ++
 		}
+
+		sort.Slice(item.index, func(i, j int) bool {
+			return item.index[i] < item.index[j]
+		})
+
 		items[i] = item
 		i ++
 	}
-	
+
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].word < items[j].word
 	})
@@ -47,18 +52,18 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 }
 
 func (m*MatrixIndex) Find(query string) []int {
-
 	words := strings.Split(strings.ToLower(query), ` `)
 	high :=  len(m.items) - 1
 	results := make([][]int, len(words))
 	for i,word := range words {
-		results[i] = m.findBin(word, 0, high)
+		q,variants := makeVariants(word)
+		results[i] = m.findBin(q, variants, 0, high)
 	}
 
 	return MergeOrderedArray(results)
 }
 
-func (m*MatrixIndex) findBin(word string, low, high int) []int {
+func (m*MatrixIndex) findBin(word string,  variants []string, low, high int) []int {
 	for low <= high {
 		median := (low + high) / 2
 		if m.items[median].word < word {
@@ -69,12 +74,36 @@ func (m*MatrixIndex) findBin(word string, low, high int) []int {
 	}
 
 	result := make([]int, 0)
-	for low <  len(m.items) && m.items[low].word == word { // test comapere word
+	for low <  len(m.items) && m.compareWord(m.items[low].word, word, variants) { // test comapere word
 		result = append(result, m.items[low].index...)
 		low++
 	}
 
 	return result
+}
+
+func (m*MatrixIndex) compareWord(word, query string, variants []string) bool {
+	if word == query {
+		return true
+	}
+	if query[len(query)-1:] == tagAny {
+		for n := 0; n < len(query); n++ {
+			r := query[n]
+			if r == tagAnyRune {
+				return true
+			} else if len(word) <= n || word[n] != r {
+				break
+			}
+		}
+	}
+	if len(variants) > 0 {
+		for _, variant := range variants {
+			if word == variant {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func MergeOrderedArray(a [][]int) []int {

@@ -212,6 +212,10 @@ func (i *indexWord) findOff(variants []*variant, offset int) int {
 
 //
 func (i *indexWord) makeVariants(q string) (string, []string) {
+	return makeVariants(q)
+}
+
+func makeVariants(q string) (string, []string) {
 	variants := make([]string, 0)
 
 	if len(q) > 0 && q[len(q)-1] == ')' {
