@@ -116,6 +116,9 @@ func (m *MatrixIndex) Query(query string) []int {
 
 func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []int {
 	w := word
+	if len(w) > 2 {
+		w = w[:2]
+	}
 	if w[len(w)-1] == tagAnyRune {
 		w = w[:len(w)-1]
 	} else if w[len(w)-1] == ')' {
