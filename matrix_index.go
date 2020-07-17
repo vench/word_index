@@ -136,6 +136,7 @@ func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []i
 	}
 
 	result := make([]int, 0) //
+	/*
 	for low < len(m.items) && len(m.items[low].word) >= len(w) && m.items[low].word[len(w)-1] == word[len(w)-1] {
 		if m.compareWord(m.items[low].word, word, variants) {
 			//result = append(result, m.items[low].index...)
@@ -145,6 +146,15 @@ func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []i
 				result = MergeOrderedArray([][]int{result, m.items[low].index})
 			}
 		}
+		low++
+	}*/
+	for low < len(m.items) && m.compareWord(m.items[low].word, word, variants) {
+		if len(result) == 0 {
+				result = m.items[low].index
+			} else {
+				result = MergeOrderedArray([][]int{result, m.items[low].index})
+		}
+
 		low++
 	}
 
