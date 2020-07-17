@@ -4,6 +4,14 @@ import (
 	"testing"
 )
 
+func TestMatrixIndex(t *testing.T) {
+	bi := NewMatrixIndex()
+	tIndexPlainText(t, bi)
+
+	bi = NewMatrixIndex()
+	tIndexMathText(t, bi)
+}
+
 func TestNewMatrixIndex(t *testing.T) {
 
 	documents := []string{
@@ -11,6 +19,7 @@ func TestNewMatrixIndex(t *testing.T) {
 		`test best aaa`,
 		`anna vera zoom`,
 		`aaa zet zzzz`,
+		`This site can’t be reached`,
 	}
 
 	index := NewMatrixIndex()
@@ -20,13 +29,13 @@ func TestNewMatrixIndex(t *testing.T) {
 	}
 
 	for _, document := range documents {
-		result := index.Find(document)
+		result := index.Query(document)
 		if len(result) == 0 {
 			t.Fatalf(``)
 		}
 	}
 
-	result := index.Find(`aaa`)
+	result := index.Query(`aaa`)
 	if len(result) != 2 {
 		t.Fatalf(`%v`, result)
 	}
@@ -37,11 +46,23 @@ func TestNewMatrixIndex(t *testing.T) {
 		t.Fatalf(``)
 	}
 
-	result = index.Find(`vera`)
+	result = index.Query(`vera`)
 	if len(result) != 1 {
 		t.Fatalf(``)
 	}
 	if result[0] != 2 {
+		t.Fatalf(``)
+	}
+
+	result = index.Query(`reac`)
+	if len(result) != 0 {
+		t.Fatalf(``)
+	}
+	result = index.Query(`reac*`)
+	if len(result) != 1 {
+		t.Fatalf(``)
+	}
+	if result[0] != 4 {
 		t.Fatalf(``)
 	}
 

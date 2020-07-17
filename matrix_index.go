@@ -1,13 +1,65 @@
 package word_index
 
 import (
-"sort"
-"strings"
+	"sort"
+	"strings"
 )
 
 type MatrixIndex struct {
 	items []*matrixIndexItem
+	documents []string
 }
+
+
+func (m *MatrixIndex) Find(query string) int {
+	result := m.Query(query)
+	if len(result) >0 {
+		return result[0]
+	}
+	return emptyFind
+}
+
+func (m *MatrixIndex) FindOff(query string, low int) int {
+	if m.FindAt(low, query) {
+		return low
+	}
+	return emptyFind
+}
+
+func (m *MatrixIndex) FindAll(query string) []int {
+	return m.Query(query)
+}
+
+func (m *MatrixIndex) FindAt(index int, query string) bool {
+	result := m.Query(query)
+	if len(result) == 0 {
+		return false
+	}
+
+	low, high := 0, len(result) -1
+	for low <= high {
+		median := (low + high) / 2
+		if result[median] < index {
+			low = median + 1
+		} else {
+			high = median - 1
+		}
+	}
+	return result[low] == index
+}
+
+func (m *MatrixIndex) Add(documents ...string) {
+	documents = append(m.documents, documents...)
+	m.Fit(documents...)
+}
+
+func (m *MatrixIndex) DocumentAt(index int) (string, bool) {
+	if len(m.documents) > index {
+		return m.documents[index], true
+	}
+	return "", false
+}
+
 
 func (m *MatrixIndex) Fit(documents ...string) error  {
 
@@ -48,10 +100,11 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 	})
 
 	m.items = items
+	m.documents = documents
 	return nil
 }
 
-func (m*MatrixIndex) Find(query string) []int {
+func (m*MatrixIndex) Query(query string) []int {
 	words := strings.Split(strings.ToLower(query), ` `)
 	high :=  len(m.items) - 1
 	results := make([][]int, len(words))
