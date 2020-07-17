@@ -28,7 +28,7 @@ func TestNewMatrixIndex(t *testing.T) {
 
 	result := index.Find(`aaa`)
 	if len(result) != 2 {
-		t.Fatalf(``)
+		t.Fatalf(`%v`, result)
 	}
 	if result[0] != 1 {
 		t.Fatalf(``)

@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-type matrixIndex struct {
+type MatrixIndex struct {
 	items []*matrixIndexItem
 }
 
-func (m *matrixIndex) Fit(documents ...string) error  {
+func (m *MatrixIndex) Fit(documents ...string) error  {
 
 	mWords := make(map[string]map[int]struct{})
 	for index,document := range documents {
@@ -46,7 +46,7 @@ func (m *matrixIndex) Fit(documents ...string) error  {
 	return nil
 }
 
-func (m*matrixIndex) Find(query string) []int {
+func (m*MatrixIndex) Find(query string) []int {
 
 	words := strings.Split(strings.ToLower(query), ` `)
 	high :=  len(m.items) - 1
@@ -58,7 +58,7 @@ func (m*matrixIndex) Find(query string) []int {
 	return MergeOrderedArray(results)
 }
 
-func (m*matrixIndex) findBin(word string, low, high int) []int {
+func (m*MatrixIndex) findBin(word string, low, high int) []int {
 	for low <= high {
 		median := (low + high) / 2
 		if m.items[median].word < word {
@@ -128,6 +128,6 @@ type matrixIndexItem struct {
 	index []int
 }
 
-func NewMatrixIndex() *matrixIndex {
-	return &matrixIndex{}
+func NewMatrixIndex() *MatrixIndex {
+	return &MatrixIndex{}
 }
