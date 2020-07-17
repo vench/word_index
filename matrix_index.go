@@ -128,15 +128,15 @@ func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []i
 	}
 	for low <= high {
 		median := (low + high) / 2
-		if m.items[median].word[0] < w[0] {
+		if m.items[median].word < w {
 			low = median + 1
 		} else {
 			high = median - 1
 		}
 	}
 
-	result := make([]int, 0) //  len(m.items[low].word) >= len(w) && m.items[low].word[len(w)-1] == word[len(w)-1]
-	for low < len(m.items) && m.items[low].word[0] == word[0] {
+	result := make([]int, 0) //
+	for low < len(m.items) && len(m.items[low].word) >= len(w) && m.items[low].word[len(w)-1] == word[len(w)-1] {
 		if m.compareWord(m.items[low].word, word, variants) {
 			//result = append(result, m.items[low].index...)
 			if len(result) == 0 {
