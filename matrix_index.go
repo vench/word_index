@@ -64,9 +64,13 @@ func (m*MatrixIndex) Find(query string) []int {
 }
 
 func (m*MatrixIndex) findBin(word string,  variants []string, low, high int) []int {
+	w := word
+	if w[len(w)-1] == tagAnyRune {
+		w = w[:len(w)-1]
+	}
 	for low <= high {
 		median := (low + high) / 2
-		if m.items[median].word < word {
+		if m.items[median].word < w {
 			low = median + 1
 		} else {
 			high = median - 1
