@@ -115,7 +115,10 @@ func (m *MatrixIndex) Query(query string) []int {
 }
 
 func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []int {
-	w := word
+	w := strings.TrimSpace(word)
+	if len(w) < 2 {
+		return []int{}
+	}
 	if w[len(w)-1] == tagAnyRune {
 		w = w[:len(w)-1]
 	} else if w[len(w)-1] == ')' {
