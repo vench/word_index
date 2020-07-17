@@ -166,6 +166,9 @@ func (m *MatrixIndex) compareWord(word, query string, variants []string) bool {
 		return true
 	}
 	if query[len(query)-1:] == tagAny {
+		if word == query[:len(query)-1] {
+			return true
+		}
 		for n := 0; n < len(query); n++ {
 			r := query[n]
 			if r == tagAnyRune {
