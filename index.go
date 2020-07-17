@@ -190,7 +190,6 @@ func (i *indexWord) FindOff(str string, offset int) int {
 
 func (i *indexWord) findOff(variants []*variant, offset int) int {
 
-
 	for index := offset; index < len(i.data); index++ {
 		d := i.data[index]
 

@@ -65,25 +65,24 @@ func TestNewMatrixIndex(t *testing.T) {
 	if result[0] != 4 {
 		t.Fatalf(``)
 	}
-
 }
 
 func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 	res := [][]int{
 		{},
-		{1,2,4,5},
-		{2,3,6,7,8},
-		{7,9,10},
-		{1,1,1,1,1,1,1,2,2,2,2,2},
+		{1, 2, 4, 5},
+		{2, 3, 6, 7, 8},
+		{7, 9, 10},
+		{1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2},
 	}
-	ok := []int {
-		1,2,3,4,5,6,7,8,9,10,
+	ok := []int{
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 	}
 	r := MergeOrderedArray(res)
 	if len(r) != len(ok) {
 		t.Fatalf(`len(r) != len(ok)`)
 	}
-	for j := 0; j < len(ok); j ++ {
+	for j := 0; j < len(ok); j++ {
 		if ok[j] != r[j] {
 			t.Fatalf(``)
 		}
@@ -92,17 +91,17 @@ func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 	//
 	res = [][]int{
 		{},
-		{2,2,2,2,2,2},
-		{1,1,1,1,1,1,1,2,2,2,2,2},
+		{2, 2, 2, 2, 2, 2},
+		{1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2},
 	}
-	ok = []int {
-		1,2,
+	ok = []int{
+		1, 2,
 	}
 	r = MergeOrderedArray(res)
 	if len(r) != len(ok) {
 		t.Fatalf(`len(r) != len(ok)`)
 	}
-	for j := 0; j < len(ok); j ++ {
+	for j := 0; j < len(ok); j++ {
 		if ok[j] != r[j] {
 			t.Fatalf(``)
 		}

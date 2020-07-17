@@ -6,14 +6,13 @@ import (
 )
 
 type MatrixIndex struct {
-	items []*matrixIndexItem
+	items     []*matrixIndexItem
 	documents []string
 }
 
-
 func (m *MatrixIndex) Find(query string) int {
 	result := m.Query(query)
-	if len(result) >0 {
+	if len(result) > 0 {
 		return result[0]
 	}
 	return emptyFind
@@ -36,7 +35,7 @@ func (m *MatrixIndex) FindAt(index int, query string) bool {
 		return false
 	}
 
-	low, high := 0, len(result) -1
+	low, high := 0, len(result)-1
 	for low <= high {
 		median := (low + high) / 2
 		if result[median] < index {
@@ -60,14 +59,13 @@ func (m *MatrixIndex) DocumentAt(index int) (string, bool) {
 	return "", false
 }
 
-
-func (m *MatrixIndex) Fit(documents ...string) error  {
+func (m *MatrixIndex) Fit(documents ...string) error {
 
 	mWords := make(map[string]map[int]struct{})
-	for index,document := range documents {
+	for index, document := range documents {
 		words := strings.Split(strings.ToLower(document), ` `)
 		for _, word := range words {
-			w,ok := mWords[word]
+			w, ok := mWords[word]
 			if !ok {
 				w = make(map[int]struct{})
 			}
@@ -78,13 +76,13 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 
 	items := make([]*matrixIndexItem, len(mWords))
 	i := 0
-	for word,index := range mWords {
+	for word, index := range mWords {
 
-		item := &matrixIndexItem{word: word, index: make([]int, len(index)) }
+		item := &matrixIndexItem{word: word, index: make([]int, len(index))}
 		j := 0
-		for inx,_ := range index {
+		for inx, _ := range index {
 			item.index[j] = inx
-			j ++
+			j++
 		}
 
 		sort.Slice(item.index, func(i, j int) bool {
@@ -92,7 +90,7 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 		})
 
 		items[i] = item
-		i ++
+		i++
 	}
 
 	sort.Slice(items, func(i, j int) bool {
@@ -104,22 +102,29 @@ func (m *MatrixIndex) Fit(documents ...string) error  {
 	return nil
 }
 
-func (m*MatrixIndex) Query(query string) []int {
+func (m *MatrixIndex) Query(query string) []int {
 	words := strings.Split(strings.ToLower(query), ` `)
-	high :=  len(m.items) - 1
+	high := len(m.items) - 1
 	results := make([][]int, len(words))
-	for i,word := range words {
-		q,variants := makeVariants(word)
+	for i, word := range words {
+		q, variants := makeVariants(word)
 		results[i] = m.findBin(q, variants, 0, high)
 	}
 
 	return MergeOrderedArray(results)
 }
 
-func (m*MatrixIndex) findBin(word string,  variants []string, low, high int) []int {
+func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []int {
 	w := word
 	if w[len(w)-1] == tagAnyRune {
 		w = w[:len(w)-1]
+	} else if w[len(w)-1] == ')' {
+		for i := len(w) - 1; i >= 0; i-- {
+			if w[i] == '(' {
+				w = w[:i]
+				break
+			}
+		}
 	}
 	for low <= high {
 		median := (low + high) / 2
@@ -131,15 +136,17 @@ func (m*MatrixIndex) findBin(word string,  variants []string, low, high int) []i
 	}
 
 	result := make([]int, 0)
-	for low <  len(m.items) && m.compareWord(m.items[low].word, word, variants) { // test comapere word
-		result = append(result, m.items[low].index...)
+	for low < len(m.items) && len(m.items[low].word) >= len(w) && m.items[low].word[len(w)-1] == word[len(w)-1] {
+		if m.compareWord(m.items[low].word, word, variants) {
+			result = append(result, m.items[low].index...)
+		}
 		low++
 	}
 
 	return result
 }
 
-func (m*MatrixIndex) compareWord(word, query string, variants []string) bool {
+func (m *MatrixIndex) compareWord(word, query string, variants []string) bool {
 	if word == query {
 		return true
 	}
@@ -166,7 +173,7 @@ func (m*MatrixIndex) compareWord(word, query string, variants []string) bool {
 func MergeOrderedArray(a [][]int) []int {
 	maxLen := 0
 	maxIndex := 0
-	for j := 0; j < len(a); j ++ {
+	for j := 0; j < len(a); j++ {
 		if len(a[j]) == 0 {
 			a = append(a[:j], a[j+1:]...)
 			continue
@@ -174,18 +181,18 @@ func MergeOrderedArray(a [][]int) []int {
 		if len(a[j]) > maxLen {
 			maxLen = len(a[j])
 		}
-		if maxIndex < a[j][len( a[j])-1] {
-			maxIndex = a[j][len( a[j])-1]
+		if maxIndex < a[j][len(a[j])-1] {
+			maxIndex = a[j][len(a[j])-1]
 		}
 	}
-	maxIndex ++
+	maxIndex++
 	b := make([]int, 0, maxLen)
 	lastIndex := -1
 	minIndex := maxIndex
 	for true {
 
 		minIndexResult := -1
-		for j := 0; j < len(a); j ++ {
+		for j := 0; j < len(a); j++ {
 			if len(a[j]) > 0 {
 				if a[j][0] < minIndex {
 					minIndex = a[j][0]
@@ -193,7 +200,7 @@ func MergeOrderedArray(a [][]int) []int {
 				}
 			} else {
 				a = append(a[:j], a[j+1:]...)
-				j --
+				j--
 			}
 		}
 		if minIndexResult == -1 {
@@ -210,7 +217,7 @@ func MergeOrderedArray(a [][]int) []int {
 }
 
 type matrixIndexItem struct {
-	word string
+	word  string
 	index []int
 }
 
