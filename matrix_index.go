@@ -181,7 +181,8 @@ func (m *MatrixIndex) compareWord(word, query string, variants []string) bool {
 
 func MergeOrderedArray(a [][]int) []int {
 	maxLen := 0
-	maxIndex := 0
+	maxValue := 0
+
 	for j := 0; j < len(a); j++ {
 		if len(a[j]) == 0 {
 			a = append(a[:j], a[j+1:]...)
@@ -190,37 +191,40 @@ func MergeOrderedArray(a [][]int) []int {
 		if len(a[j]) > maxLen {
 			maxLen = len(a[j])
 		}
-		if maxIndex < a[j][len(a[j])-1] {
-			maxIndex = a[j][len(a[j])-1]
+		if maxValue < a[j][len(a[j])-1] {
+			maxValue = a[j][len(a[j])-1]
 		}
 	}
-	maxIndex++
+	offsets := make([]int, len(a))
+	maxValue++
 	b := make([]int, 0, maxLen)
 	lastIndex := -1
-	minIndex := maxIndex
+	minValue := maxValue
 	for true {
 
 		minIndexResult := -1
 		for j := 0; j < len(a); j++ {
-			if len(a[j]) > 0 {
-				if a[j][0] < minIndex {
-					minIndex = a[j][0]
+			if len(a[j]) > offsets[j] {
+				if a[j][offsets[j]] < minValue {
+					minValue = a[j][offsets[j]]
 					minIndexResult = j
 				}
 			} else {
 				a = append(a[:j], a[j+1:]...)
+				offsets = append(offsets[:j], offsets[j+1:]...)
 				j--
 			}
 		}
 		if minIndexResult == -1 {
 			break
 		}
-		if lastIndex < minIndex {
-			b = append(b, minIndex)
-			lastIndex = minIndex
+		if lastIndex < minValue {
+			b = append(b, minValue)
+			lastIndex = minValue
 		}
-		minIndex = maxIndex
-		a[minIndexResult] = a[minIndexResult][1:]
+		minValue = maxValue
+		//a[minIndexResult] = a[minIndexResult][1:]
+		offsets[minIndexResult] ++
 	}
 	return b
 }

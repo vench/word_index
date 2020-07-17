@@ -1,6 +1,7 @@
 package word_index
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -80,6 +81,7 @@ func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 	}
 	r := MergeOrderedArray(res)
 	if len(r) != len(ok) {
+		fmt.Println(r,ok)
 		t.Fatalf(`len(r) != len(ok)`)
 	}
 	for j := 0; j < len(ok); j++ {
