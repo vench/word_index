@@ -68,6 +68,52 @@ func TestNewMatrixIndex(t *testing.T) {
 	}
 }
 
+func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
+	res := [][]int {
+		{1,2,3,4},
+		{1,3},
+		{1,2,3,4,5,6},
+	}
+	ret := MergeOrderedArrayAnd(res)
+	if len(ret) != 2 {
+		t.Fatalf(`len(ret) != 2, is %d`, len(ret))
+	}
+	if ret[0] != 1 {
+		t.Fatalf(``)
+	}
+	if ret[1] != 3 {
+		t.Fatalf(``)
+	}
+
+	//
+	res = [][]int {
+		{1,2,4,7,8,11},
+		{1,3,7,10},
+		{1,2,3,4,5,6,7,10},
+	}
+	ret = MergeOrderedArrayAnd(res)
+	if len(ret) != 2 {
+		t.Fatalf(`len(ret) != 2, is %d`, len(ret))
+	}
+	if ret[0] != 1 {
+		t.Fatalf(``)
+	}
+	if ret[1] != 7 {
+		t.Fatalf(``)
+	}
+
+	//
+	res = [][]int {
+		{0,2,4,7,8,11},
+		{1,3,7,10},
+		{1,2,3,4,5,6,9,10},
+	}
+	ret = MergeOrderedArrayAnd(res)
+	if len(ret) != 0 {
+		t.Fatalf(`len(ret) != 0, is %d`, len(ret))
+	}
+}
+
 func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 	res := [][]int{
 		{},
@@ -107,5 +153,74 @@ func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 		if ok[j] != r[j] {
 			t.Fatalf(``)
 		}
+	}
+}
+
+func TestMatrixIndex_QueryAndOr(t *testing.T) {
+	documents := []string{
+		`abc zyz test site`,
+		`test best aaa`,
+		`anna vera zoom site`,
+		`aaa zet zzzz`,
+		`This site test can’t be reached`,
+	}
+
+	index := NewMatrixIndex()
+	err := index.Fit(documents...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result := index.QueryAndOr(`test`, true)
+	if len(result) != 3 {
+		t.Fatalf(``)
+	}
+	if result[0] != 0 {
+		t.Fatalf(``)
+	}
+	if result[1] != 1 {
+		t.Fatalf(``)
+	}
+	if result[2] != 4 {
+		t.Fatalf(``)
+	}
+	result = index.QueryAndOr(`site`, true)
+	if len(result) != 3 {
+		t.Fatalf(``)
+	}
+	if result[0] != 0 {
+		t.Fatalf(``)
+	}
+	if result[1] != 2 {
+		t.Fatalf(``)
+	}
+	if result[2] != 4 {
+		t.Fatalf(``)
+	}
+	result = index.QueryAndOr(`test site`, true)
+	if len(result) != 2 {
+		t.Fatalf(``)
+	}
+	if result[0] != 0 {
+		t.Fatalf(``)
+	}
+	if result[1] != 4 {
+		t.Fatalf(``)
+	}
+	result = index.QueryAndOr(`test site`, false)
+	if len(result) != 4 {
+		t.Fatalf(``)
+	}
+	if result[0] != 0 {
+		t.Fatalf(``)
+	}
+	if result[1] != 1 {
+		t.Fatalf(``)
+	}
+	if result[2] != 2 {
+		t.Fatalf(``)
+	}
+	if result[3] != 4 {
+		t.Fatalf(``)
 	}
 }

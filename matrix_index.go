@@ -103,6 +103,10 @@ func (m *MatrixIndex) Fit(documents ...string) error {
 }
 
 func (m *MatrixIndex) Query(query string) []int {
+	return m.QueryAndOr(query, false)
+}
+
+func (m *MatrixIndex) QueryAndOr(query string, useAnd bool) []int {
 	words := strings.Split(strings.ToLower(query), ` `)
 	high := len(m.items) - 1
 	results := make([][]int, len(words))
@@ -110,9 +114,12 @@ func (m *MatrixIndex) Query(query string) []int {
 		q, variants := makeVariants(word)
 		results[i] = m.findBin(q, variants, 0, high)
 	}
-
+	if useAnd {
+		return MergeOrderedArrayAnd(results)
+	}
 	return MergeOrderedArray(results)
 }
+
 
 func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []int {
 	w := strings.TrimSpace(word)
@@ -228,6 +235,36 @@ func MergeOrderedArray(a [][]int) []int {
 		minValue = maxValue
 		//a[minIndexResult] = a[minIndexResult][1:]
 		offsets[minIndexResult] ++
+	}
+	return b
+}
+
+func MergeOrderedArrayAnd(a [][]int) []int {
+	b := make([]int, 0)
+	minIndex := 0
+	for i := 1; i < len(a); i ++ {
+		if len(a[minIndex]) > len(a[i]) {
+			minIndex = i
+		}
+	}
+	for i,v := range a[minIndex]{
+		has := true
+		for j := 0; j < len(a); j ++{
+			if j == minIndex {
+				continue
+			}
+			for n := i; n < len(a[j]); n ++ {
+				if has = a[j][n] == v; has {
+					break
+				}
+			}
+			if !has {
+				break
+			}
+		}
+		if has {
+			b = append(b, v)
+		}
 	}
 	return b
 }

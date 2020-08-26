@@ -210,20 +210,20 @@ func (i *indexWord) findOff(variants []*variant, offset int) int {
 }
 
 //
-func (i *indexWord) makeVariants(q string) (string, []string) {
-	return makeVariants(q)
+func (i *indexWord) makeVariants(word string) (qWord string, variants []string) {
+	return makeVariants(word)
 }
 
-func makeVariants(q string) (string, []string) {
+func makeVariants(word string) (string, []string) {
 	variants := make([]string, 0)
 
-	if len(q) > 0 && q[len(q)-1] == ')' {
+	if len(word) > 0 && word[len(word)-1] == ')' {
 		base := make([]rune, 0)
 		start := false
 		variant := make([]rune, 0)
-		for _, r := range []rune(q) {
+		for _, r := range []rune(word) {
 			if r == tagAnyRune {
-				q = string(append(base, r))
+				word = string(append(base, r))
 				variants = make([]string, 0)
 				break
 			}
@@ -245,7 +245,7 @@ func makeVariants(q string) (string, []string) {
 			}
 		}
 	}
-	return q, variants
+	return word, variants
 }
 
 //
