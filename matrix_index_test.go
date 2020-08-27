@@ -112,6 +112,20 @@ func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
 	if len(ret) != 0 {
 		t.Fatalf(`len(ret) != 0, is %d`, len(ret))
 	}
+
+	//
+	res = [][]int {
+		{0,2,4},
+		{2,3,7,10},
+		{1,2,3,4,5,6,9,10},
+	}
+	ret = MergeOrderedArrayAnd(res)
+	if len(ret) != 1 {
+		t.Fatalf(`len(ret) != 0, is %d`, len(ret))
+	}
+	if ret[0] != 2 {
+		t.Fatalf(``)
+	}
 }
 
 func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {

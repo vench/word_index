@@ -247,14 +247,20 @@ func MergeOrderedArrayAnd(a [][]int) []int {
 			minIndex = i
 		}
 	}
+	offsets := make([]int, len(a))
 	for i,v := range a[minIndex]{
+		_ = i
 		has := true
 		for j := 0; j < len(a); j ++{
 			if j == minIndex {
 				continue
 			}
-			for n := i; n < len(a[j]); n ++ {
-				if has = a[j][n] == v; has {
+			for ; offsets[j] < len(a[j]); offsets[j] ++ {
+				if a[j][offsets[j]] > v {
+					has = false
+					break
+				}
+				if has = a[j][offsets[j]] == v; has {
 					break
 				}
 			}
