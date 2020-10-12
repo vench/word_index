@@ -69,10 +69,10 @@ func TestNewMatrixIndex(t *testing.T) {
 }
 
 func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
-	res := [][]int {
-		{1,2,3,4},
-		{1,3},
-		{1,2,3,4,5,6},
+	res := [][]int{
+		{1, 2, 3, 4},
+		{1, 3},
+		{1, 2, 3, 4, 5, 6},
 	}
 	ret := MergeOrderedArrayAnd(res)
 	if len(ret) != 2 {
@@ -86,10 +86,10 @@ func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
 	}
 
 	//
-	res = [][]int {
-		{1,2,4,7,8,11},
-		{1,3,7,10},
-		{1,2,3,4,5,6,7,10},
+	res = [][]int{
+		{1, 2, 4, 7, 8, 11},
+		{1, 3, 7, 10},
+		{1, 2, 3, 4, 5, 6, 7, 10},
 	}
 	ret = MergeOrderedArrayAnd(res)
 	if len(ret) != 2 {
@@ -103,10 +103,10 @@ func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
 	}
 
 	//
-	res = [][]int {
-		{0,2,4,7,8,11},
-		{1,3,7,10},
-		{1,2,3,4,5,6,9,10},
+	res = [][]int{
+		{0, 2, 4, 7, 8, 11},
+		{1, 3, 7, 10},
+		{1, 2, 3, 4, 5, 6, 9, 10},
 	}
 	ret = MergeOrderedArrayAnd(res)
 	if len(ret) != 0 {
@@ -114,10 +114,10 @@ func TestNewMatrixIndex_MergeOrderedArrayAnd(t *testing.T) {
 	}
 
 	//
-	res = [][]int {
-		{0,2,4},
-		{2,3,7,10},
-		{1,2,3,4,5,6,9,10},
+	res = [][]int{
+		{0, 2, 4},
+		{2, 3, 7, 10},
+		{1, 2, 3, 4, 5, 6, 9, 10},
 	}
 	ret = MergeOrderedArrayAnd(res)
 	if len(ret) != 1 {
@@ -141,7 +141,7 @@ func TestNewMatrixIndex_MergeOrderArray(t *testing.T) {
 	}
 	r := MergeOrderedArray(res)
 	if len(r) != len(ok) {
-		fmt.Println(r,ok)
+		fmt.Println(r, ok)
 		t.Fatalf(`len(r) != len(ok)`)
 	}
 	for j := 0; j < len(ok); j++ {

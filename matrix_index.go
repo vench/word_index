@@ -120,7 +120,6 @@ func (m *MatrixIndex) QueryAndOr(query string, useAnd bool) []int {
 	return MergeOrderedArray(results)
 }
 
-
 func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []int {
 	w := strings.TrimSpace(word)
 	if len(w) < 2 {
@@ -152,12 +151,10 @@ func (m *MatrixIndex) findBin(word string, variants []string, low, high int) []i
 			} else {
 				result = MergeOrderedArray([][]int{result, m.items[low].index})
 		} */
-		results = append(results,  m.items[low].index )
+		results = append(results, m.items[low].index)
 
 		low++
 	}
-
-
 
 	return MergeOrderedArray(results)
 }
@@ -234,7 +231,7 @@ func MergeOrderedArray(a [][]int) []int {
 		}
 		minValue = maxValue
 		//a[minIndexResult] = a[minIndexResult][1:]
-		offsets[minIndexResult] ++
+		offsets[minIndexResult]++
 	}
 	return b
 }
@@ -242,20 +239,20 @@ func MergeOrderedArray(a [][]int) []int {
 func MergeOrderedArrayAnd(a [][]int) []int {
 	b := make([]int, 0)
 	minIndex := 0
-	for i := 1; i < len(a); i ++ {
+	for i := 1; i < len(a); i++ {
 		if len(a[minIndex]) > len(a[i]) {
 			minIndex = i
 		}
 	}
 	offsets := make([]int, len(a))
-	for i,v := range a[minIndex]{
+	for i, v := range a[minIndex] {
 		_ = i
 		has := true
-		for j := 0; j < len(a); j ++{
+		for j := 0; j < len(a); j++ {
 			if j == minIndex {
 				continue
 			}
-			for ; offsets[j] < len(a[j]); offsets[j] ++ {
+			for ; offsets[j] < len(a[j]); offsets[j]++ {
 				if a[j][offsets[j]] > v {
 					has = false
 					break
