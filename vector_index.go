@@ -16,7 +16,7 @@ func (v *vector) DistCos(a *vector) float64 {
 }
 
 func (v *vector) DistMonteCarlo(a *vector) float64 {
-	return 0
+	return distMonteCarlo(a.V, v.V)
 }
 
 func (v *vector) DistEuclidean(a *vector) float64 {
@@ -191,4 +191,12 @@ func distEuclidean(a, b []float64) float64 {
 		s += math.Pow(a[i]-b[i], 2)
 	}
 	return math.Sqrt(s)
+}
+
+func distMonteCarlo(a, b []float64) float64 {
+	if len(a) != len(b) {
+		return 0
+	}
+	s := float64(0)
+	return s
 }
