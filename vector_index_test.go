@@ -39,7 +39,7 @@ func TestNewIndexVector_SearchNeighborhood(t *testing.T) {
 		t.Fatalf(`%s`, err.Error())
 	}
 	// dim 1
-	err = iv.Fit([]*vector{
+	err = iv.Fit([]*Vector{
 		{Id: 1, V: []float64{1}},
 		{Id: 2, V: []float64{1}},
 		{Id: 3, V: []float64{2}},
@@ -66,7 +66,7 @@ func TestNewIndexVector_SearchNeighborhood(t *testing.T) {
 	}
 
 	// dim 2
-	err = iv.Fit([]*vector{
+	err = iv.Fit([]*Vector{
 		{Id: 1, V: []float64{1, 1}},
 		{Id: 2, V: []float64{1, 2}},
 		{Id: 3, V: []float64{2, 2}},
@@ -99,7 +99,7 @@ func TestIndexVector_Search(t *testing.T) {
 		t.Fatalf(`%s`, err.Error())
 	}
 	// dim 1
-	err = iv.Fit([]*vector{
+	err = iv.Fit([]*Vector{
 		{Id: 1, V: []float64{1}},
 		{Id: 2, V: []float64{1}},
 		{Id: 3, V: []float64{2}},

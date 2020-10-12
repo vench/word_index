@@ -5,33 +5,33 @@ import (
 	"sort"
 )
 
-type vector struct {
+type Vector struct {
 	Id   uint32
 	V    []float64
 	Data interface{}
 }
 
-func (v *vector) DistCos(a *vector) float64 {
+func (v *Vector) DistCos(a *Vector) float64 {
 	return distCos(a.V, v.V)
 }
 
-func (v *vector) DistMonteCarlo(a *vector) float64 {
+func (v *Vector) DistMonteCarlo(a *Vector) float64 {
 	return distMonteCarlo(a.V, v.V)
 }
 
-func (v *vector) DistEuclidean(a *vector) float64 {
+func (v *Vector) DistEuclidean(a *Vector) float64 {
 	return distEuclidean(a.V, v.V)
 }
 
-func NewEmptyVector(id uint32, size int) *vector {
-	return &vector{
+func NewEmptyVector(id uint32, size int) *Vector {
+	return &Vector{
 		Id: id,
 		V:  make([]float64, size),
 	}
 }
 
-func NewVector(id uint32, v []float64, data interface{}) *vector {
-	return &vector{
+func NewVector(id uint32, v []float64, data interface{}) *Vector {
+	return &Vector{
 		Id:   id,
 		V:    v,
 		Data: data,
@@ -39,7 +39,7 @@ func NewVector(id uint32, v []float64, data interface{}) *vector {
 }
 
 type indexVectorItem struct {
-	i         *vector
+	i         *Vector
 	z         uint64
 	neighbors []*indexVectorItem
 }
@@ -50,7 +50,7 @@ type IndexVector struct {
 	neighborsThreshold float64
 }
 
-func (iv *IndexVector) Fit(list []*vector) error {
+func (iv *IndexVector) Fit(list []*Vector) error {
 	items := make([]*indexVectorItem, len(list))
 	itemsMap := make(map[uint32]*indexVectorItem)
 	for i, v := range list {
@@ -85,7 +85,7 @@ func (iv *IndexVector) Fit(list []*vector) error {
 	return nil
 }
 
-func (iv *IndexVector) SearchNeighborhood(v []float64, neighborhood []float64) ([]*vector, error) {
+func (iv *IndexVector) SearchNeighborhood(v []float64, neighborhood []float64) ([]*Vector, error) {
 	zSearch := ZOrderCurveFloat64(v)
 	zNeighborhood := ZOrderCurveFloat64(neighborhood)
 	zSearchLow := uint64(0)
@@ -103,7 +103,7 @@ func (iv *IndexVector) SearchNeighborhood(v []float64, neighborhood []float64) (
 			high = median - 1
 		}
 	}
-	result := make([]*vector, 0)
+	result := make([]*Vector, 0)
 	for low < len(iv.itemsOrderZ) && iv.itemsOrderZ[low].z <= zSearchHigh {
 		//fmt.Println(iv.itemsOrderZ[low].i.Id)
 		result = append(result, iv.itemsOrderZ[low].i)
@@ -112,7 +112,7 @@ func (iv *IndexVector) SearchNeighborhood(v []float64, neighborhood []float64) (
 	return result, nil
 }
 
-func (iv *IndexVector) Search(v []float64) ([]*vector, error) {
+func (iv *IndexVector) Search(v []float64) ([]*Vector, error) {
 	zSearch := ZOrderCurveFloat64(v)
 	low := 0
 	high := len(iv.itemsOrderZ) - 1
@@ -124,7 +124,7 @@ func (iv *IndexVector) Search(v []float64) ([]*vector, error) {
 			high = median - 1
 		}
 	}
-	result := make([]*vector, 0)
+	result := make([]*Vector, 0)
 	for low < len(iv.itemsOrderZ) && iv.itemsOrderZ[low].z <= zSearch {
 		//fmt.Println(iv.itemsOrderZ[low].i.Id)
 		result = append(result, iv.itemsOrderZ[low].i)
