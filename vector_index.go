@@ -12,7 +12,7 @@ type vector struct {
 }
 
 func (v *vector) DistCos(a *vector) float64 {
-	return 0
+	return distCos(a.V, v.V)
 }
 
 func (v *vector) DistMonteCarlo(a *vector) float64 {
@@ -23,10 +23,18 @@ func (v *vector) DistEuclidean(a *vector) float64 {
 	return distEuclidean(a.V, v.V)
 }
 
-func NewVector(id uint32, size int) *vector {
+func NewEmptyVector(id uint32, size int) *vector {
 	return &vector{
 		Id: id,
 		V:  make([]float64, size),
+	}
+}
+
+func NewVector(id uint32, v []float64, data interface{}) *vector {
+	return &vector{
+		Id:   id,
+		V:    v,
+		Data: data,
 	}
 }
 
@@ -36,13 +44,13 @@ type indexVectorItem struct {
 	neighbors []*indexVectorItem
 }
 
-type indexVector struct {
+type IndexVector struct {
 	itemsMap           map[uint32]*indexVectorItem
 	itemsOrderZ        []*indexVectorItem
 	neighborsThreshold float64
 }
 
-func (iv *indexVector) Fit(list []*vector) error {
+func (iv *IndexVector) Fit(list []*vector) error {
 	items := make([]*indexVectorItem, len(list))
 	itemsMap := make(map[uint32]*indexVectorItem)
 	for i, v := range list {
@@ -64,6 +72,7 @@ func (iv *indexVector) Fit(list []*vector) error {
 			if i == j {
 				continue
 			}
+			// TODO set sist type
 			if v.i.DistEuclidean(v1.i) <= iv.neighborsThreshold {
 				v.neighbors = append(v.neighbors, v1)
 			}
@@ -76,7 +85,7 @@ func (iv *indexVector) Fit(list []*vector) error {
 	return nil
 }
 
-func (iv *indexVector) SearchNeighborhood(v []float64, neighborhood []float64) ([]*vector, error) {
+func (iv *IndexVector) SearchNeighborhood(v []float64, neighborhood []float64) ([]*vector, error) {
 	zSearch := ZOrderCurveFloat64(v)
 	zNeighborhood := ZOrderCurveFloat64(neighborhood)
 	zSearchLow := uint64(0)
@@ -103,7 +112,7 @@ func (iv *indexVector) SearchNeighborhood(v []float64, neighborhood []float64) (
 	return result, nil
 }
 
-func (iv *indexVector) Search(v []float64) ([]*vector, error) {
+func (iv *IndexVector) Search(v []float64) ([]*vector, error) {
 	zSearch := ZOrderCurveFloat64(v)
 	low := 0
 	high := len(iv.itemsOrderZ) - 1
@@ -124,8 +133,8 @@ func (iv *indexVector) Search(v []float64) ([]*vector, error) {
 	return result, nil
 }
 
-func NewIndexVector() (*indexVector, error) {
-	return &indexVector{}, nil
+func NewIndexVector() (*IndexVector, error) {
+	return &IndexVector{}, nil
 }
 
 func ZOrderCurveFloat64(vec []float64) uint64 {
@@ -154,6 +163,23 @@ func ZOrderCurve(vec []uint64) uint64 {
 		r |= v << i
 	}
 	return r
+}
+
+func distCos(a, b []float64) float64 {
+	if len(a) != len(b) {
+		return 0
+	}
+	as, bs, ab := float64(0), float64(0), float64(0)
+	for i := 0; i < len(a); i++ {
+		as += a[i] * a[i]
+		bs += b[i] * b[i]
+		ab += a[i] * b[i]
+	}
+
+	if as == 0 || bs == 0 {
+		return 0.0
+	}
+	return ab / (math.Sqrt(as) * math.Sqrt(bs))
 }
 
 func distEuclidean(a, b []float64) float64 {

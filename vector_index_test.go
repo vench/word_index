@@ -1,13 +1,32 @@
 package word_index
 
 import (
+	"fmt"
 	"math"
 	"sort"
 	"testing"
 )
 
 func TestVector_DistCos(t *testing.T) {
-	// TODO
+	tests := []struct {
+		V1   []float64
+		V2   []float64
+		Dist float64
+	}{
+		{V1: []float64{}, V2: []float64{}, Dist: 0},
+		{V1: []float64{1}, V2: []float64{1}, Dist: 1},
+		{V1: []float64{1, 2, 3}, V2: []float64{1, 2, 3}, Dist: 1},
+		{V1: []float64{1, 1, 0}, V2: []float64{1, 1, 1}, Dist: 2 / math.Sqrt(2*3)},
+		{V1: []float64{1, 1, 1}, V2: []float64{1, 1, 1}, Dist: 3 / math.Sqrt(3*3)},       // 3/sqrt(9)=1
+		{V1: []float64{1, 1, 1}, V2: []float64{10, 10, 10}, Dist: 30 / math.Sqrt(300*3)}, // 30/sqrt(900)=1
+	}
+	for i, test := range tests {
+		d := distCos(test.V1, test.V2)
+		if fmt.Sprintf(`%.4f`, test.Dist) != fmt.Sprintf(`%.4f`, d) {
+			t.Fatalf(`N: %d, not equal dist: %.4f != %.4f`, i, test.Dist, d)
+		}
+	}
+
 }
 
 func TestVector_DistMonteCarlo(t *testing.T) {
@@ -46,6 +65,31 @@ func TestNewIndexVector_SearchNeighborhood(t *testing.T) {
 		t.Fatalf(`len not equals 3, %d`, len(list))
 	}
 
+	// dim 2
+	err = iv.Fit([]*vector{
+		{Id: 1, V: []float64{1, 1}},
+		{Id: 2, V: []float64{1, 2}},
+		{Id: 3, V: []float64{2, 2}},
+		{Id: 4, V: []float64{101, 100}},
+		{Id: 5, V: []float64{101, 102}},
+	})
+	if err != nil {
+		t.Fatalf(`%s`, err.Error())
+	}
+	list, err = iv.SearchNeighborhood([]float64{1, 1}, []float64{})
+	if err != nil {
+		t.Fatalf(`%s`, err.Error())
+	}
+	if len(list) != 1 {
+		t.Fatalf(`len not equals 1, %d`, len(list))
+	}
+	list, err = iv.SearchNeighborhood([]float64{1, 1}, []float64{2, 2})
+	if err != nil {
+		t.Fatalf(`%s`, err.Error())
+	}
+	if len(list) != 3 {
+		t.Fatalf(`len not equals 3, %d`, len(list))
+	}
 }
 
 func TestIndexVector_Search(t *testing.T) {
@@ -109,12 +153,17 @@ func TestVector_DistEuclidean(t *testing.T) {
 		{V1: []float64{1}, V2: []float64{2}, Dist: 1},
 		{V1: []float64{1, 1}, V2: []float64{2, 2}, Dist: math.Sqrt(2)},
 		{V1: []float64{1, 1}, V2: []float64{2, 8}, Dist: math.Sqrt(1 + 49)},
+		{V1: []float64{1, 1, 0}, V2: []float64{1, 1, 1}, Dist: 1},
+		{V1: []float64{1, 1, 1}, V2: []float64{1, 1, 1}, Dist: 0},
+		{V1: []float64{1, 1, 1}, V2: []float64{10, 10, 10}, Dist: 15.5885},
 	}
 	for i, test := range tests {
 		d := distEuclidean(test.V1, test.V2)
-		if test.Dist != d {
+		//d2 := distCos(test.V1, test.V2)
+		if fmt.Sprintf(`%.4f`, test.Dist) != fmt.Sprintf(`%.4f`, d) {
 			t.Fatalf(`N: %d, not equal dist: %.4f != %.4f`, i, test.Dist, d)
 		}
+		//fmt.Println(i, d,d2)
 	}
 
 }
