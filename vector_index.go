@@ -1,6 +1,7 @@
 package word_index
 
 import (
+	"fmt"
 	"math"
 	"sort"
 )
@@ -65,19 +66,23 @@ func (iv *IndexVector) Fit(list []*Vector) error {
 		return items[i].z < items[j].z
 	})
 
-	// update neighbors O(N^2)
-	for i, v := range itemsMap {
-		v.neighbors = make([]*indexVectorItem, 0)
-		for j, v1 := range itemsMap {
-			if i == j {
-				continue
-			}
-			// TODO set sist type
-			if v.i.DistEuclidean(v1.i) <= iv.neighborsThreshold {
-				v.neighbors = append(v.neighbors, v1)
+
+	if iv.neighborsThreshold != 0 {
+		// update neighbors O(N^2)
+		for i, v := range itemsMap {
+			v.neighbors = make([]*indexVectorItem, 0)
+			for j, v1 := range itemsMap {
+				if i == j {
+					continue
+				}
+				// TODO set sist type
+				if v.i.DistEuclidean(v1.i) <= iv.neighborsThreshold {
+					v.neighbors = append(v.neighbors, v1)
+				}
 			}
 		}
 	}
+
 
 	iv.itemsMap = itemsMap
 	iv.itemsOrderZ = items
