@@ -1,7 +1,6 @@
 package word_index
 
 import (
-	"fmt"
 	"math"
 	"sort"
 )
