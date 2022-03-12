@@ -33,6 +33,13 @@ func TestVector_DistMonteCarlo(t *testing.T) {
 	// TODO
 }
 
+func TestVector_DistEuclidean2(t *testing.T) {
+	v1 := NewVector(1, []float64{0,0,0,0,0,0,0,0,0,0}, nil)
+	v2 := NewVector(2, []float64{10,10,10,10,10,10,10,10,10,10}, nil)
+	dist := v1.DistEuclidean(v2)
+	fmt.Println(dist)
+}
+
 func TestNewIndexVector_SearchNeighborhood(t *testing.T) {
 	iv, err := NewIndexVector()
 	if err != nil {
