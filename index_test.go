@@ -2,227 +2,72 @@ package word_index
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-var (
-	documents = []string{
-		`Sorry. We’re having trouble getting your pages back.`,
-		`Наши рестораны это необычный формат: открытая кухня, блюда со всего света, фермерские продукты, уют и дружеская атмосфера.`,
-		`If that address is correct, here are three other things you can try: Try again later.    Check your network connection.    If you are connected but behind a firewall, check that Firefox has permission to access the Web.`,
-		`Still not able to restore your session? Sometimes a tab is causing the issue. View previous tabs, remove the checkmark from the tabs you don’t need to recover, and then restore.`,
-		`We are having trouble restoring your last browsing session. Select Restore Session to try again.`,
-		`Docker supports multi-stage builds, meaning docker will build in one container and you can copy the build artifacts to final image.`,
-		`Нет подключения к Интернету`,
-		`В качестве исходных данных будет использована статистика из Яндекс.Метрики. DataLens автоматически создаст дашборд на основе счетчика Метрики с подборкой графиков, а вы сможете отредактировать его по своему усмотрению.`,
-		`Войти в личный кабинет ePayments`,
-		`В математическом анализе и информатике кривая Мортона, Z-последовательность,Z-порядок, кривая Лебега, порядок Мортона или код Мортона — это функция, которая отображает многомерные данные в одномерные, сохраняя локальность точек данных. Функция была введена в 1966 Гаем Макдональдом Мортоном[1].`,
-		`Our Dockerfile will have two section, first one where we build the binary and the second one which will be our final image. `,
-		`Мы рассмотрим вашу заявку и ответим вам в ближайшее время. Если заявка будет подтверждена, доступ к сервису появится автоматически.`,
-		`If you want to keep your array ordered, you have to shift all of the elements at the right of the deleting indexRegexp by one to the left. Hopefully, this can be done easily in Golang:`,
-		`Данный шаг доступен для пользователей, у которых есть права на какой-либо счетчик Метрики. Если у вас нет прав на счетчик, то откройте готовый дашборд Metriсa и перейдите к шагу 2.`,
-		`Удачное расположение с панорамой Казанского собора, вежливый и приветливый персонал, очень вкусная еда, быстрое обслуживание создали хорошее настроение и комфорт. `,
-		`Ресторан быстрого обслуживания Marketplace (бывшие «Фрикадельки») — это новая, современная интерпретация демократичного ресторана с открытой кухней, линией раздачи «Free flow» и отделом кулинарии.`,
-		`Marketplace – это демократичный ресторан с открытой кухней и живой атмосферой европейского рынка.`,
-		`Георгию Карамзину и Татьяне Самсоновой предъявлено обвинение как посредникам. Изначально и Гоголев, и Карамзин были арестованы, но накануне Якутский городской суд перевел последнего под домашний арест. Самсонова же под домашним арестом изначально.`,
-		`Гоголев — главный обвиняемый по этому делу. По данным следствия, девелопер передал ему взятку в виде прав на недвижимость в строящемся жилом доме на 1491 квадратный метр.`,
-		`Попробуйте сделать следующее: Проверьте сетевые кабели, модем и маршрутизатор. Подключитесь к сети Wi-Fi ещё раз.`,
-		`This is almost identical to the first Makefile we created for our consignment-service, however notice the service names and the ports have changed a little`,
-		`«В этой связи суд отказал в изменении меры пресечения на заключение под стражу, считая выявленные нарушения недостаточными для немедленного изменения меры пресечения», — рассказали в пресс-службе.`,
-		`You can also perform actions on individual containers. This example prints the logs of a container given its ID.`,
-		`Note: Don’t run this on a production server. Also, if you are using swarm services, the containers stop, but Docker creates new ones to keep the service running in its configured state.`,
-		`This first example shows how to run a container using the Docker API. On the command line, you would use the docker run command, but this is just as easy to do from your own apps too.`,
-		`Each of these examples show how to perform a given Docker operation using the Go and Python SDKs and the HTTP API using curl.`,
-		`Create container from the image and expose it by mentioning a port`,
-		`Please consider chucking me a couple of quid for my time and effort.`,
-		`Choosing Go is a wise decision that gives scalability and concurrency for your application and selecting a light weight image like alpine will make the push and pull of the image to registries faster, also small size base gives you minimal operating features to build functional container where you can add/install necessary dependencies in future`,
-		`“Golang” the language created by Google that provides impeccable performance over application that demands concurrency has grabbed a separate spot in the tech community, few well known Inc’s that adopted the language include Facebook, Netflix , Dropbox etc.`,
-	}
-)
+func TestSearch_Find(t *testing.T) {
+	t.Parallel()
 
-//
-func BenchmarkIndexBin(t *testing.B) {
-	ic := NewIndex()
-	bPlainText(t, ic)
+	s := NewSearch()
+	s.Add(&Item{
+		ID:      3,
+		Feature: NewFeatures("abc", "xyz"),
+	})
+	s.Add(&Item{
+		ID:      2,
+		Feature: NewFeatures("xyz"),
+	})
+	s.Add(&Item{
+		ID:      1,
+		Feature: NewFeatures("abc"),
+	})
+	s.Add(&Item{
+		ID:      4,
+		Feature: NewFeatures("foo", "bar"),
+	})
+	s.Add(&Item{
+		ID:      5,
+		Feature: NewFeatures("foo", "gaz"),
+	})
+
+	require.Equal(t, 5, len(s.index))
+
+	result := s.Find("foo")
+	require.Equal(t, 2, len(result))
+	require.Equal(t, ItemID(4), result[0])
+	require.Equal(t, ItemID(5), result[1])
 }
 
-//
-func BenchmarkIndexInterpolation(t *testing.B) {
-	ic := &indexWord{data: []*indexItem{}, binSearch: false}
-	bPlainText(t, ic)
-}
+func TestItems_Insert(t *testing.T) {
+	t.Parallel()
 
-//
-func BenchmarkIndexBinSync(t *testing.B) {
-	bi := NewIndexSync()
-	bPlainText(t, bi)
-}
+	var i Items
+	i.Insert(&Item{
+		ID:      1,
+		Feature: nil,
+	})
+	i.Insert(&Item{
+		ID:      5,
+		Feature: nil,
+	})
+	i.Insert(&Item{
+		ID:      4,
+		Feature: nil,
+	})
 
-//
-func bPlainText(t *testing.B, i Index) {
-	i.Add(documents...)
+	i.Insert(&Item{
+		ID:      3,
+		Feature: nil,
+	})
+	i.Insert(&Item{
+		ID:      2,
+		Feature: nil,
+	})
 
-	t.ResetTimer()
+	require.True(t, len(i.items) > 0)
 
-	for j := 0; j < t.N; j++ {
-		for _, word := range []string{`from the image and expose it by`, `my time and effort`, `Нет подключения к Интернету`, `Choosing Go is a wise decision`} {
-			i.Find(word)
-		}
-	}
-}
-
-//
-func TestIndexBinSync(t *testing.T) {
-	bi := NewIndexSync()
-	tIndexPlainText(t, bi)
-
-	bi = NewIndexSync()
-	tIndexMathText(t, bi)
-}
-
-//
-func TestIndexBinSyncAtDocument(t *testing.T) {
-	bi := NewIndexSync()
-	tAtDocument(t, bi)
-}
-
-//
-func TestIndexBin(t *testing.T) {
-	bi := NewIndex()
-	tIndexPlainText(t, bi)
-
-	bi = NewIndex()
-	tIndexMathText(t, bi)
-}
-
-//
-func TestIndexBinAtDocument(t *testing.T) {
-	bi := NewIndex()
-	tAtDocument(t, bi)
-}
-
-//
-func TestIndexInterpolationAtDocument(t *testing.T) {
-	bi := &indexWord{data: []*indexItem{}, binSearch: false}
-	tAtDocument(t, bi)
-}
-
-//
-func TestIndexInterpolation(t *testing.T) {
-	bi := &indexWord{data: []*indexItem{}, binSearch: false}
-	tIndexPlainText(t, bi)
-
-	bi = &indexWord{data: []*indexItem{}, binSearch: false}
-	tIndexMathText(t, bi)
-}
-
-//
-func tAtDocument(t *testing.T, bi Index) {
-	ss := []string{`first str`, ``, `third str`}
-	bi.Add(ss...)
-
-	for i, s := range ss {
-		str, ok := bi.DocumentAt(i)
-		if !ok {
-			t.Fatalf(`Index %d not extists`, i)
-		}
-		if str != s {
-			t.Fatalf(`String not equals: %s %s`, str, s)
-		}
-	}
-
-	_, ok := bi.DocumentAt(len(ss) + 1)
-	if ok {
-		t.Fatalf(`Index %d out of range`, len(ss)+1)
-	}
-}
-
-//
-func tIndexMathText(t *testing.T, i Index) {
-	var (
-		s1 = `Нет подключения к Интернету`
-		s2 = `Иванова нет на месте`
-		s3 = `Create container from the image and expose it by mentioning a port`
-	)
-	i.Add(
-		s1, s2, s3,
-	)
-	tFindNegative(t, i, `и`)
-	tFindNegative(t, i, `Интернет`)
-	tFindPositive(t, i, `Интернет(у)`)
-	tFindPositive(t, i, `Иванов(а|ой|ым)`)
-	tFindNegative(t, i, `contai`)
-	tFindPositive(t, i, `contai(ner)`)
-	tFindPositive(t, i, `contai*`)
-	tFindPositive(t, i, `contai(xxx|*)`)
-	tFindPositive(t, i, `c*`)
-	tFindNegative(t, i, `mentionin`)
-	tFindPositive(t, i, `mentioning*`)
-	tFindPositive(t, i, `m*`)
-
-	d, ok := i.DocumentAt(0)
-	if !ok {
-		t.Fatalf(`Document not found`)
-	}
-	if d != s1 {
-		t.Fatalf(`Error check: %s != %s`, d, s1)
-	}
-	d, ok = i.DocumentAt(1)
-	if !ok {
-		t.Fatalf(`Document not found`)
-	}
-	if d != s2 {
-		t.Fatalf(`Error check: %s != %s`, d, s2)
-	}
-	d, ok = i.DocumentAt(2)
-	if !ok {
-		t.Fatalf(`Document not found`)
-	}
-	if d != s3 {
-		t.Fatalf(`Error check: %s != %s`, d, s3)
-	}
-
-	if i.FindAt(1, `ment*`) == true {
-		t.Fatalf(`Error check`)
-	}
-	if i.FindAt(2, `ment*`) == false {
-		t.Fatalf(`Error check`)
-	}
-	if i.FindAt(2, `mentz*`) == true {
-		t.Fatalf(`Error check`)
-	}
-}
-
-//
-func tIndexPlainText(t *testing.T, i Index) {
-	i.Add(
-		`Нет подключения к Интернету`,
-		`Create container from the image and expose it by mentioning a port`,
-		`Please consider chucking me a couple of quid for my time and effort.`,
-		`You can also perform actions on individual containers. This example prints the logs of a container given its ID.`,
-	)
-	tFindPositive(t, i, `Нет`)
-	tFindPositive(t, i, `к`)
-	tFindPositive(t, i, `Create`)
-	tFindPositive(t, i, `individual`)
-	tFindPositive(t, i, `This`)
-	tFindPositive(t, i, `eXample`)
-	tFindPositive(t, i, `on`)
-	tFindNegative(t, i, `php`)
-	tFindNegative(t, i, `t`)
-	tFindNegative(t, i, `а`)
-	tFindNegative(t, i, `и`)
-}
-
-//
-func tFindPositive(t *testing.T, i Index, word string) {
-	if i.Find(word) == -1 {
-		t.Fatalf(`Error not find word %s`, word)
-	}
-}
-
-//
-func tFindNegative(t *testing.T, i Index, word string) {
-	if i.Find(word) >= 0 {
-		t.Fatalf(`Error wrong find word %s`, word)
+	for j := 1; j < len(i.items); j++ {
+		require.Greater(t, i.items[j].ID, i.items[j-1].ID)
 	}
 }
