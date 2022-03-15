@@ -1,8 +1,20 @@
 package word_index
 
-import "sort"
+import (
+	"sort"
+)
+
+const anyForm = "*"
 
 type Feature string
+
+func (f Feature) AnyForm() bool {
+	return f[len(f)-1:] == anyForm
+}
+
+func (f Feature) String() string {
+	return string(f)
+}
 
 var (
 	emptyItemID = make([]ItemID, 0)
@@ -36,7 +48,7 @@ func NewItems() *Items {
 	}
 }
 
-// Insert item save sorting.
+// Insert item save sorting by ID.
 func (i *Items) Insert(item *Item) {
 	index := sort.Search(len(i.items), func(j int) bool {
 		return i.items[j].ID >= item.ID
@@ -52,12 +64,14 @@ func (i *Items) Insert(item *Item) {
 }
 
 type Search struct {
-	index map[Feature]*Items
+	index    map[Feature]*Items
+	features []Feature
 }
 
 func NewSearch() *Search {
 	return &Search{
-		index: make(map[Feature]*Items),
+		index:    make(map[Feature]*Items),
+		features: NewFeatures(),
 	}
 }
 
@@ -92,4 +106,15 @@ func (s *Search) Add(items ...*Item) {
 			s.index[feature] = m
 		}
 	}
+
+	features := NewFeatures()
+	for f, _ := range s.index {
+		features = append(features, f)
+	}
+
+	sort.Slice(features, func(i, j int) bool {
+		return features[i] < features[j]
+	})
+
+	s.features = features
 }

@@ -31,6 +31,7 @@ func TestSearch_Find(t *testing.T) {
 		Feature: NewFeatures("foo", "gaz"),
 	})
 
+	require.Equal(t, NewFeatures("abc", "bar", "foo", "gaz", "xyz"), s.features)
 	require.Equal(t, 5, len(s.index))
 
 	result := s.Find("foo")
