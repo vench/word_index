@@ -2,14 +2,21 @@ package word_index
 
 import (
 	"sort"
+	"strings"
 )
 
 const anyForm = "*"
+
+type FeatureID uint64
 
 type Feature string
 
 func (f Feature) AnyForm() bool {
 	return f[len(f)-1:] == anyForm
+}
+
+func (f Feature) Form() Feature {
+	return f[:len(f)-1]
 }
 
 func (f Feature) String() string {
@@ -64,22 +71,57 @@ func (i *Items) Insert(item *Item) {
 }
 
 type Search struct {
-	index    map[Feature]*Items
-	features []Feature
+	index      map[FeatureID]*Items
+	featureMap map[Feature]FeatureID
+	features   []Feature
 }
 
 func NewSearch() *Search {
 	return &Search{
-		index:    make(map[Feature]*Items),
-		features: NewFeatures(),
+		index:      make(map[FeatureID]*Items),
+		featureMap: make(map[Feature]FeatureID),
 	}
+}
+
+func (s *Search) transformFeature(feature ...Feature) []FeatureID {
+	features := make([]FeatureID, 0, len(feature))
+	for i := range feature {
+
+		if id, exists := s.featureMap[feature[i]]; exists {
+			features = append(features, id)
+			continue
+		}
+
+		if feature[i].AnyForm() {
+			form := feature[i].Form()
+			if len(form) == 0 {
+				continue
+			}
+
+			index := sort.Search(len(s.features), func(j int) bool {
+				return strings.Contains(s.features[i].String(), form.String())
+			})
+
+			if index >= len(s.features) {
+				continue
+			}
+
+			if id, exists := s.featureMap[s.features[index]]; exists {
+				features = append(features, id)
+			}
+		}
+	}
+
+	return features
 }
 
 func (s *Search) Find(feature ...Feature) []ItemID {
 	results := make([][]ItemID, len(feature))
 
-	for i := range feature {
-		data, exists := s.index[feature[i]]
+	features := s.transformFeature(feature...)
+
+	for i := range features {
+		data, exists := s.index[features[i]]
 		if !exists {
 			results[i] = emptyItemID
 		} else {
@@ -98,17 +140,24 @@ func (s *Search) Add(items ...*Item) {
 		item := items[i]
 		for j := range item.Feature {
 			feature := item.Feature[j]
-			m, ok := s.index[feature]
+
+			id, ok := s.featureMap[feature]
+			if !ok {
+				id = FeatureID(len(s.featureMap) + 1)
+				s.featureMap[feature] = id
+			}
+
+			m, ok := s.index[id]
 			if !ok {
 				m = NewItems()
 			}
 			m.Insert(item)
-			s.index[feature] = m
+			s.index[id] = m
 		}
 	}
 
 	features := NewFeatures()
-	for f, _ := range s.index {
+	for f := range s.featureMap {
 		features = append(features, f)
 	}
 

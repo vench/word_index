@@ -70,6 +70,17 @@ func Test_Filtering(t *testing.T) {
 			),
 			out: []ItemID{1001, 4001},
 		},
+		{
+			name: "filter trial and (assassination or held)",
+			input: NewAndOperator(
+				NewFilterIn("trial"),
+				NewOrOperator(
+					NewFilterIn("assassination"),
+					NewFilterIn("held"),
+				),
+			),
+			out: []ItemID{3001, 4001},
+		},
 	}
 
 	s := newTestSearch(t)

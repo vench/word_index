@@ -72,3 +72,25 @@ func TestItems_Insert(t *testing.T) {
 		require.Greater(t, i.items[j].ID, i.items[j-1].ID)
 	}
 }
+
+func TestSearch_transformFeature(t *testing.T) {
+	t.Parallel()
+
+	s := NewSearch()
+	s.Add(&Item{
+		ID:      5,
+		Feature: NewFeatures("foo", "gaz"),
+	})
+
+	ids := s.transformFeature("foo")
+	require.Equal(t, []FeatureID{1}, ids)
+
+	ids = s.transformFeature("foo*")
+	require.Equal(t, []FeatureID{1}, ids)
+
+	ids = s.transformFeature("*")
+	require.Equal(t, []FeatureID{}, ids)
+
+	ids = s.transformFeature("abc*")
+	require.Equal(t, []FeatureID{}, ids)
+}

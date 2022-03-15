@@ -23,4 +23,8 @@ if i != -1 {
 
 ### TODO
 
-[ ] bin operations
+[ ] transformer
+
+[X] any index
+
+[ ] store index
