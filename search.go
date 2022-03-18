@@ -71,44 +71,51 @@ func (i *Items) Insert(item *Item) {
 }
 
 type Search struct {
-	index      map[FeatureID]*Items
-	featureMap map[Feature]FeatureID
-	features   []Feature
+	index       map[FeatureID]*Items
+	featureDict map[Feature]FeatureID
+	features    []Feature
 }
 
 func NewSearch() *Search {
 	return &Search{
-		index:      make(map[FeatureID]*Items),
-		featureMap: make(map[Feature]FeatureID),
+		index:       make(map[FeatureID]*Items),
+		featureDict: make(map[Feature]FeatureID),
 	}
 }
 
 func (s *Search) transformFeature(feature ...Feature) []FeatureID {
 	features := make([]FeatureID, 0, len(feature))
-	for i := range feature {
 
-		if id, exists := s.featureMap[feature[i]]; exists {
+	for i := range feature {
+		if id, exists := s.featureDict[feature[i]]; exists {
 			features = append(features, id)
 			continue
 		}
 
-		if feature[i].AnyForm() {
-			form := feature[i].Form()
-			if len(form) == 0 {
+		if !feature[i].AnyForm() {
+			continue
+		}
+
+		form := feature[i].Form()
+		if len(form) == 0 {
+			continue
+		}
+
+		index := sort.Search(len(s.features), func(j int) bool {
+			return s.features[j] >= form
+		})
+
+		for ; index < len(s.features); index++ {
+			f := s.features[index]
+			if !strings.Contains(f.String(), form.String()) {
+				break
+			}
+
+			id, exists := s.featureDict[f]
+			if !exists {
 				continue
 			}
-
-			index := sort.Search(len(s.features), func(j int) bool {
-				return strings.Contains(s.features[i].String(), form.String())
-			})
-
-			if index >= len(s.features) {
-				continue
-			}
-
-			if id, exists := s.featureMap[s.features[index]]; exists {
-				features = append(features, id)
-			}
+			features = append(features, id)
 		}
 	}
 
@@ -116,12 +123,11 @@ func (s *Search) transformFeature(feature ...Feature) []FeatureID {
 }
 
 func (s *Search) Find(feature ...Feature) []ItemID {
-	results := make([][]ItemID, len(feature))
+	featureTransform := s.transformFeature(feature...)
+	results := make([][]ItemID, len(featureTransform))
 
-	features := s.transformFeature(feature...)
-
-	for i := range features {
-		data, exists := s.index[features[i]]
+	for i := range featureTransform {
+		data, exists := s.index[featureTransform[i]]
 		if !exists {
 			results[i] = emptyItemID
 		} else {
@@ -141,10 +147,10 @@ func (s *Search) Add(items ...*Item) {
 		for j := range item.Feature {
 			feature := item.Feature[j]
 
-			id, ok := s.featureMap[feature]
+			id, ok := s.featureDict[feature]
 			if !ok {
-				id = FeatureID(len(s.featureMap) + 1)
-				s.featureMap[feature] = id
+				id = FeatureID(len(s.featureDict) + 1)
+				s.featureDict[feature] = id
 			}
 
 			m, ok := s.index[id]
@@ -157,7 +163,7 @@ func (s *Search) Add(items ...*Item) {
 	}
 
 	features := NewFeatures()
-	for f := range s.featureMap {
+	for f := range s.featureDict {
 		features = append(features, f)
 	}
 
