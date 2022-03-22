@@ -1,6 +1,7 @@
 package word_index
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -43,7 +44,7 @@ func TestSearch_Find(t *testing.T) {
 func TestItems_Insert(t *testing.T) {
 	t.Parallel()
 
-	var i Items
+	var i items
 	i.Insert(&Item{
 		ID:      1,
 		Feature: nil,
@@ -66,10 +67,10 @@ func TestItems_Insert(t *testing.T) {
 		Feature: nil,
 	})
 
-	require.True(t, len(i.items) > 0)
+	require.True(t, len(i.Items) > 0)
 
-	for j := 1; j < len(i.items); j++ {
-		require.Greater(t, i.items[j].ID, i.items[j-1].ID)
+	for j := 1; j < len(i.Items); j++ {
+		require.Greater(t, i.Items[j].ID, i.Items[j-1].ID)
 	}
 }
 
@@ -93,4 +94,35 @@ func TestSearch_transformFeature(t *testing.T) {
 
 	ids = s.transformFeature("abc*")
 	require.Equal(t, []FeatureID{}, ids)
+}
+
+func TestSearch_SaveLoad(t *testing.T) {
+	t.Parallel()
+
+	f, err := os.CreateTemp("/tmp", "search-test-*")
+	require.NoError(t, err)
+	defer f.Close()
+
+	s := NewSearch()
+	s.Add(&Item{
+		ID:      5,
+		Feature: NewFeatures("foo", "gaz"),
+	},
+		&Item{
+			ID:      7,
+			Feature: NewFeatures("test", "best", "bar", "foo"),
+		})
+
+	err = s.Save(f)
+	require.NoError(t, err)
+
+	fr, err := os.Open(f.Name())
+	require.NoError(t, err)
+	defer fr.Close()
+
+	sLoad := NewSearch()
+	err = sLoad.Load(fr)
+	require.NoError(t, err)
+
+	require.Equal(t, s, sLoad)
 }

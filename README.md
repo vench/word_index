@@ -27,4 +27,6 @@ if i != -1 {
 
 [X] any index
 
-[ ] store index
+[X] store index
+
+[ ] not logic

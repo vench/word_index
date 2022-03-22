@@ -1,14 +1,20 @@
 package word_index
 
 import (
+	"bytes"
+	"encoding/gob"
+	"fmt"
+	"io"
 	"sort"
 	"strings"
 )
 
 const anyForm = "*"
 
+// FeatureID reproduced special type for feature ID.
 type FeatureID uint64
 
+// Feature reproduced special type for feature.
 type Feature string
 
 func (f Feature) AnyForm() bool {
@@ -27,17 +33,21 @@ var (
 	emptyItemID = make([]ItemID, 0)
 )
 
+// NewFeatures create new list of Feature from input values.
 func NewFeatures(feature ...Feature) []Feature {
 	return feature
 }
 
+// ItemID reproduced special type for item ID.
 type ItemID int64
 
+// Item reproduced special type for item contains ID and features list.
 type Item struct {
 	ID      ItemID
 	Feature []Feature
 }
 
+// NewItem create new instance of item for storage item ID and features.
 func NewItem(id ItemID, feature ...Feature) *Item {
 	return &Item{
 		ID:      id,
@@ -45,40 +55,43 @@ func NewItem(id ItemID, feature ...Feature) *Item {
 	}
 }
 
-type Items struct {
-	items []*Item
+type items struct {
+	Items []*Item
 }
 
-func NewItems() *Items {
-	return &Items{
-		items: make([]*Item, 0),
+// NewItems create new empty list of items.
+func NewItems() *items {
+	return &items{
+		Items: make([]*Item, 0),
 	}
 }
 
 // Insert item save sorting by ID.
-func (i *Items) Insert(item *Item) {
-	index := sort.Search(len(i.items), func(j int) bool {
-		return i.items[j].ID >= item.ID
+func (i *items) Insert(item *Item) {
+	index := sort.Search(len(i.Items), func(j int) bool {
+		return i.Items[j].ID >= item.ID
 	})
 
-	if len(i.items) == index {
-		i.items = append(i.items, item)
+	if len(i.Items) == index {
+		i.Items = append(i.Items, item)
 		return
 	}
 
-	i.items = append(i.items[:index+1], i.items[index:]...)
-	i.items[index] = item
+	i.Items = append(i.Items[:index+1], i.Items[index:]...)
+	i.Items[index] = item
 }
 
+// Search wrapper on search index struct.
 type Search struct {
-	index       map[FeatureID]*Items
+	index       map[FeatureID]*items
 	featureDict map[Feature]FeatureID
 	features    []Feature
 }
 
+// NewSearch create new instance of Search.
 func NewSearch() *Search {
 	return &Search{
-		index:       make(map[FeatureID]*Items),
+		index:       make(map[FeatureID]*items),
 		featureDict: make(map[Feature]FeatureID),
 	}
 }
@@ -122,6 +135,7 @@ func (s *Search) transformFeature(feature ...Feature) []FeatureID {
 	return features
 }
 
+// Find return merged list of ItemID by index features.
 func (s *Search) Find(feature ...Feature) []ItemID {
 	featureTransform := s.transformFeature(feature...)
 	results := make([][]ItemID, len(featureTransform))
@@ -131,9 +145,9 @@ func (s *Search) Find(feature ...Feature) []ItemID {
 		if !exists {
 			results[i] = emptyItemID
 		} else {
-			results[i] = make([]ItemID, len(data.items))
-			for j := range data.items {
-				results[i][j] = data.items[j].ID
+			results[i] = make([]ItemID, len(data.Items))
+			for j := range data.Items {
+				results[i][j] = data.Items[j].ID
 			}
 		}
 	}
@@ -141,6 +155,7 @@ func (s *Search) Find(feature ...Feature) []ItemID {
 	return mergeOrderedArrayOr(results...)
 }
 
+// Add added new nodes to index.
 func (s *Search) Add(items ...*Item) {
 	for i := range items {
 		item := items[i]
@@ -172,4 +187,45 @@ func (s *Search) Add(items ...*Item) {
 	})
 
 	s.features = features
+}
+
+type wrapperSearch struct {
+	Index       map[FeatureID]*items
+	FeatureDict map[Feature]FeatureID
+	Features    []Feature
+}
+
+// Save store instance index to io.Writer.
+func (s *Search) Save(w io.Writer) error {
+	var buf bytes.Buffer
+
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(&wrapperSearch{
+		Index:       s.index,
+		FeatureDict: s.featureDict,
+		Features:    s.features,
+	}); err != nil {
+		return fmt.Errorf("failed to encode Search: %w", err)
+	}
+
+	if _, err := w.Write(buf.Bytes()); err != nil {
+		return fmt.Errorf("failed to write buffer: %w", err)
+	}
+
+	return nil
+}
+
+// Load loaded index from io.Reader.
+func (s *Search) Load(r io.Reader) error {
+	var w wrapperSearch
+	dec := gob.NewDecoder(r)
+	if err := dec.Decode(&w); err != nil {
+		return fmt.Errorf("failed to decode: %w", err)
+	}
+
+	s.index = w.Index
+	s.featureDict = w.FeatureDict
+	s.features = w.Features
+
+	return nil
 }
